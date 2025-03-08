@@ -112,8 +112,6 @@
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             grid-template-columns: repeat(4, 1fr);
             grid-template-columns: repeat(5, minmax(150px, 1fr));
-
-
             gap: 1.5rem;
             padding: 1rem 0;
         }
@@ -444,70 +442,73 @@ select.filter-button:hover {
             </button>
         </div>
 
-        <!-- Agregar el formulario aquí: -->
-        <div class="add-content-form" id="addContentForm" style="max-width:300px; display: none; margin-bottom: 20px; background-color: rgba(24,26,27); padding: 20px; border-radius: 10px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="color: white; margin: 0;">Agregar Nuevo Contenido</h3>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Formulario de agregar contenido -->
+            <div class="add-content-form" id="addContentForm" style="display: none; background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 100%; max-width: 1200px; margin: 0 auto;">
+                <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 20px;">
+                    <h3 style="color: white; margin: 0; font-size: 24px; text-align: center;">Agregar Nuevo Contenido</h3>
                 </div>
 
+                <div id="ANIMECONTENEDOR" class="anim-container">
+                    <div class="form-container">
+                        <div class="modal-header">
+                        </div>
+                        <div class="search-container" style="width: 50%; margin: 0 auto;">
+                            <input type="text" 
+                                   class="search-input" 
+                                   id="searchInput" 
+                                   placeholder="Buscar anime..."
+                                   oninput="debounceSearch(event)" 
+                                   style="color:black; width: 100%;">
+                        </div>
+                        <form id="animeForm" onsubmit="handleSubmit(event)" style="display: grid; gap: 15px; max-width: 1000px; margin: 30px auto 0;">
+                            <div style="display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; width: 100%;">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="title" placeholder="Título" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="category" placeholder="Categoría" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                </div>
+                                <div class="form-group">
+                                    <input type="number" class="form-control" id="score" placeholder="Puntuación" min="0" max="10" step="0.1" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                </div>
+                                <div class="form-group">
+                                    <input type="url" class="form-control" id="imageUrl" placeholder="URL imagen" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="episodes" placeholder="Episodios" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="status" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                        <option value="" disabled selected>Seleccionar Estado</option>
+                                    <option value="Viendo">Viendo</option>
+                                    <option value="Completados">Completado</option>
+                                    <option value="En espera">En Espera</option>
+                                    <option value="Abandonados">Abandonados</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <select class="form-control" id="type" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                        <option value="" disabled selected>Tipo</option>
+                                        <option value="tv">TV</option>
+                                        <option value="movie">Película</option>
+                                        <option value="ova">OVA</option>
+                                        <option value="special">Especial</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="filter-button" style="width: 200px; margin: 15px auto 0; display: block; background-color: #007bff; transition: background-color 0.3s;">Agregar Contenido</button>
+                        </form>
+                    </div>
+                    <div class="results-container" id="searchResults">
+                        <!-- Los resultados de la búsqueda se mostrarán aquí -->
+                    </div>
+                </div>
+            </div>
 
-            
-<div id="ANIMECONTENEDOR" class="anim-container">
-    <div class="form-container">
-        <div class="modal-header">
+            <!-- Galería de anime -->
+            <div class="gallery" id="animeGallery"></div>
         </div>
-        <div class="search-container">
-            <input type="text" 
-                   class="search-input" 
-                   id="searchInput" 
-                   placeholder="Buscar anime..."
-                   oninput="debounceSearch(event)" style="color:black;">
-        </div>
-        <form id="animeForm" onsubmit="handleSubmit(event)">
-            <div class="form-group">
-                <input type="text" class="form-control" id="title" placeholder="Título" required>
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="category" placeholder="Categoría (separar por comas)" required>
-            </div>
-            <div class="form-group">
-                <input type="number" class="form-control" id="score" placeholder="Puntuación (ej: 8/10)" min="0" max="10" step="0.1">
-            </div>
-            <div class="form-group">
-                <input type="url" class="form-control" id="imageUrl" placeholder="URL de la imagen">
-            </div>
-            <div class="form-group">
-                <input type="text" class="form-control" id="episodes" placeholder="Episodios (ej: 12/12)">
-            </div>
-            <div class="form-group">
-                <select class="form-control" id="status" required>
-                    <option value="" disabled selected>Seleccionar Estado</option>
-                    <option value="viendo">Viendo</option>
-                    <option value="completado">Completado</option>
-                    <option value="en_espera">En Espera</option>
-                    <option value="abandonado">Abandonado</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <select class="form-control" id="type" required>
-                    <option value="" disabled selected>Seleccionar Tipo</option>
-                    <option value="tv">TV</option>
-                    <option value="movie">Película</option>
-                    <option value="ova">OVA</option>
-                    <option value="special">Especial</option>
-                </select>
-            </div>
-            <button type="submit" class="submit-button">Agregar Contenido</button>
-        </form>
-    </div>
-    <div class="results-container" id="searchResults">
-        <!-- Los resultados de la búsqueda se mostrarán aquí -->
-    </div>
-</div>
-
-        </div>
-
-        <div class="gallery" id="animeGallery"></div>
     </div>
     <div id="modal" class="modal">
         <span class="cerrar">&times;</span>
@@ -839,7 +840,7 @@ select.filter-button:hover {
     "title": "Solo Leveling",
     "category": "acción, aventura, fantasía, sobrenatural, Shounen",
     "score": "8.75/10",
-    "image": "https://animehungary.hu/images_v2/boritokepek/4154.webp",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
     "episode": "/12",
     "status": "Viendo"
     
@@ -1841,7 +1842,7 @@ select.filter-button:hover {
         "score": "?",
         "image": "https://imgsrv.crunchyroll.com/cdn-cgi/image/fit=contain,format=auto,quality=85,width=1200,height=675/catalog/crunchyroll/ff503d8b939e73ed62f126b4ae5c7909.jpg",
         "episode": "3/12",
-        "status": "Viendo"
+        "status": "Completados"
         },
         {
         "title": "The Ossan Newbie Adventurer, Trained to Death by the Most Powerful Party, Became Invincible",
@@ -1921,7 +1922,119 @@ select.filter-button:hover {
     "score": "8.1",
     "image": "https://cdn.myanimelist.net/images/anime/1895/142748.jpg",
     "episode": "10/10",
-    "status": "completado"
+    "status": "Completado"
+},
+{
+    "title": "Sakamoto Days",
+    "category": "Action, Comedy",
+    "score": "7.8",
+    "image": "https://gqcanimes.com.br/wp-content/uploads/2024/05/trailer-anime-de-Sakamoto-Days-em-2025-1250x703.webp",
+    "episode": "11/11",
+    "status": "Enespera"
+},
+{
+    "title": "Akuyaku Reijou Tensei Ojisan",
+    "category": "Comedy, Fantasy",
+    "score": "7.00",
+    "image": "https://www.acidadeon.com/tudoep/wp-content/uploads/sites/10/2025/01/Copia-de-Foto-26_2025-01-31_19-15-12_png_2025-01-31_19-15-12-1280x700.webp",
+    "episode": "12/12",
+    "status": "Viendo"
+},
+{
+    "title": "Dungeon ni Deai wo Motomeru no wa Machigatteiru Darou ka",
+    "category": "Action, Adventure, Fantasy",
+    "score": "7.50",
+    "image": "https://geek.etc.br/wp-content/uploads/2024/03/imagem_2024-03-11_123227148.png",
+    "episode": "13/13",
+    "status": "En espera"
+},
+{
+    "title": "Mushikaburi-hime",
+    "category": "Drama, Romance",
+    "score": "6.8",
+    "image": "https://animenew.com.br/wp-content/uploads/2022/05/Mushikaburi-hime-ganha-novo-video-promocional-e-estreara-em-outubro-1-jpg.webp",
+    "episode": "6/12",
+    "status": "Viendo"
+},
+        {
+    "title": "Rozen Maiden",
+    "category": "Action, Comedy, Drama, Fantasy",
+    "score": "7.4",
+    "image": "https://m.media-amazon.com/images/S/pv-target-images/58afa8d143fff839d1bd6436c3456adf71e0f1be7232694279cc1801d32bed59.jpg",
+    "episode": "7/12",
+    "status": "Viendo"
+},
+        {
+    "title": "Yozakura-san Chi no Daisakusen",
+    "category": "Action, Comedy",
+    "score": "7.5",
+    "image": "https://assets.gamearena.gg/wp-content/uploads/2024/01/30113753/Yozakura-san-Chi-no-Daisakusen-Anime.jpg",
+    "episode": "0/27",
+    "status": "En espera"
+},
+        {
+    "title": "Shuumatsu Nani Shitemasu ka? Isogashii desu ka? Sukutte Moratte Ii desu ka?",
+    "category": "Drama, Fantasy, Romance, Sci-Fi",
+    "score": "7.6",
+    "image": "https://images.justwatch.com/backdrop/177882622/s640/zhong-mo-nanishitemasuka-mang-shiidesuka-jiu-tsutemoratsuteiidesuka",
+    "episode": "12/12",
+    "status": "Completado"
+},
+        {
+    "title": "Gamers!",
+    "category": "Comedy, Romance",
+    "score": "6.7",
+    "image": "https://cdn.myanimelist.net/images/anime/4/86828.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "Death March kara Hajimaru Isekai Kyousoukyoku",
+    "category": "Adventure, Fantasy",
+    "score": "7.0",
+    "image": "https://images3.alphacoders.com/910/thumb-1920-910152.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "Koi to Uso",
+    "category": "Drama, Romance",
+    "score": "6.5",
+    "image": "https://images6.alphacoders.com/856/thumb-1920-856847.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "Isekai wa Smartphone to Tomo ni.",
+    "category": "Adventure, Comedy, Fantasy, Romance",
+    "score": "6.3",
+    "image": "https://static.zerochan.net/Isekai.wa.Smartphone.to.Tomo.ni..full.2796082.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "Choujin Koukousei-tachi wa Isekai demo Yoyuu de Ikinuku you desu!",
+    "category": "Action, Adventure, Fantasy",
+    "score": "6.3",
+    "image": "https://www.animeunited.com.br/oomtumtu/2019/10/c9771b478aa5cf182b5933696daa0150_0cb7ff52955b6556dd1e6440ca698a82v2.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "Hatena☆Illusion",
+    "category": "Comedy, Romance, Supernatural",
+    "score": "6",
+    "image": "https://m.media-amazon.com/images/S/pv-target-images/b14e78fd59ceca58372833415160d50813ce40e8af3e84cd0ccdaba7e4f99a79._SX1080_FMjpg_.jpg",
+    "episode": "12/12",
+    "status": "Completados"
+},
+        {
+    "title": "3D Kanojo: Real Girl 2nd Season",
+    "category": "Romance",
+    "score": "7.6",
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPWayiHeyW2CzH4beonl34PW7wPOHvUaEtQg&s",
+    "episode": "12/12",
+    "status": "Completados"
 }
     ];   
     
@@ -2730,7 +2843,7 @@ function displayResults(animes) {
     const resultsContainer = document.getElementById('searchResults');
     resultsContainer.innerHTML = animes.map(anime => `
         <div class="anime-card" onclick="fillForm(${JSON.stringify(anime).replace(/"/g, '&quot;')})">
-            <img src="${anime.images.jpg.image_url}" alt="${anime.title}">
+            <img src="${anime.images.jpg.image_url}" alt="${anime.title}" loading="lazy">
             <div class="anime-info">
                 <h3 class="anime-title">${anime.title}</h3>
                 <div class="anime-details">
@@ -2741,6 +2854,76 @@ function displayResults(animes) {
             </div>
         </div>
     `).join('');
+
+    // Agregar estilos dinámicamente si no existen
+    if (!document.getElementById('results-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'results-styles';
+        styles.textContent = `
+            .results-container {
+                margin-top: 20px;
+                max-height: 400px;
+                overflow-y: auto;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+                padding: 10px;
+            }
+
+            .results-container .anime-card {
+                background-color: rgba(24,26,27);
+                border-radius: 8px;
+                overflow: hidden;
+                cursor: pointer;
+                transition: transform 0.2s;
+            }
+
+            .results-container .anime-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0 15px 5px rgba(0, 0, 0, 0.3);
+            }
+
+            .results-container .anime-card img {
+                width: 100%;
+                height: 150px;
+                object-fit: cover;
+            }
+
+            .results-container .anime-info {
+                padding: 10px;
+            }
+
+            .results-container .anime-title {
+                font-size: 0.9rem;
+                color: white;
+                margin-bottom: 5px;
+            }
+
+            .results-container .anime-details {
+                font-size: 0.8rem;
+                color: #888;
+            }
+
+            .results-container::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .results-container::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.1);
+                border-radius: 4px;
+            }
+
+            .results-container::-webkit-scrollbar-thumb {
+                background: var(--primary-color);
+                border-radius: 4px;
+            }
+
+            .results-container::-webkit-scrollbar-thumb:hover {
+                background: var(--primary-hover);
+            }
+        `;
+        document.head.appendChild(styles);
+    }
 }
     
     
