@@ -470,7 +470,7 @@ select.filter-button:hover {
                                     <input type="text" class="form-control" id="category" placeholder="Categoría" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="number" class="form-control" id="score" placeholder="Puntuación" min="0" max="10" step="0.1" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="text" class="form-control" id="score" placeholder="Puntuación /10" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;"> 
                                 </div>
                                 <div class="form-group">
                                     <input type="url" class="form-control" id="imageUrl" placeholder="URL imagen" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
@@ -2043,6 +2043,14 @@ select.filter-button:hover {
     "image": "https://animesolution.com/wp-content/uploads/2020/05/Itai-no-wa-Iya-nano-de-Bougyoryoku-ni-Kyokufuri-Shitai-to-Omoimasu-OP_00.53_2020.04.29_22.56.46.jpg",
     "episode": "12/12",
     "status": "Viendo"
+},
+        {
+    "title": "Nanatsu no Taizai: Funnu no Shinpan",
+    "category": "Action, Adventure, Fantasy",
+    "score": "6.5",
+    "image": "https://cdn.myanimelist.net/images/anime/1011/111551.jpg",
+    "episode": "24/24",
+    "status": "Viendo"
 }
     ];   
     
@@ -2336,7 +2344,7 @@ select.filter-button:hover {
         }
     ];
     
-    function init() {
+     function init() {
         setupEventListeners();
         // Mostrar animes por defecto al cargar la página
         const defaultContent = mediaItems.filter(item => item.type === 'anime');
@@ -2939,9 +2947,9 @@ function displayResults(animes) {
         function fillForm(anime) {
             document.getElementById('title').value = anime.title;
             document.getElementById('category').value = anime.genres?.map(g => g.name).join(', ') || '';
-            document.getElementById('score').value = anime.score || '';
+            document.getElementById('score').value = `${anime.score}/10` || '';
             document.getElementById('imageUrl').value = anime.images.jpg.image_url;
-            document.getElementById('episodes').value = anime.episodes ? `${anime.episodes}/${anime.episodes}` : '';
+            document.getElementById('episodes').value = anime.episodes;
             
             // Mapear el tipo de anime
             const typeMap = {
