@@ -1121,6 +1121,14 @@ select.filter-button:hover {
 "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgzvyL3ZSY5-RN4ChXR_9ZXeoW5t_2HwxUZQPzTG6jm6qhtOCQQUObuOefIg3IINWfJ8fGxj3YYnVvNXNu60uqZeuhc7Ds0Fc1eZFVxtFmEaLGO_5H8keTlPH-1NJDOceSqlRE75pzW2Mw/s1600/Itai+no+wa+Iya+nanode+B%25C5%258Dgyo-Ryoku+ni+Kyokufuri+Shitai+to+Omoimasu+%2528Novela+Web+en+espa%25C3%25B1ol%2529.jpg",
 "episode": "8/12",
 "status": "Viendo"
+},
+{
+    "title": "Cyberpunk: Edgerunners",
+    "category": "Action, Sci-Fi",
+    "score": "?/10",
+    "image": "https://cdn.myanimelist.net/images/anime/1818/126435.jpg",
+    "episode": "",
+    "status": "Viendo"
 }
 ];
 
@@ -2006,9 +2014,9 @@ function displayResults(animes) {
         function fillForm(anime) {
             document.getElementById('title').value = anime.title;
             document.getElementById('category').value = anime.genres?.map(g => g.name).join(', ') || '';
-            document.getElementById('score').value = anime.score || '';
+            document.getElementById('score').value = `${anime.score} / 10` || '';
             document.getElementById('imageUrl').value = anime.images.jpg.image_url;
-            document.getElementById('episodes').value = anime.episodes ? `${anime.episodes}/${anime.episodes}` : '';
+            document.getElementById('episodes').value = anime.episodes;
             
             // Mapear el tipo de anime
             const typeMap = {
