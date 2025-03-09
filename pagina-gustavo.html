@@ -1127,7 +1127,7 @@ select.filter-button:hover {
     "category": "Action, Sci-Fi",
     "score": "?/10",
     "image": "https://cdn.myanimelist.net/images/anime/1818/126435.jpg",
-    "episode": "",
+    "episode": "0/10",
     "status": "Viendo"
 }
 ];
@@ -2014,7 +2014,7 @@ function displayResults(animes) {
         function fillForm(anime) {
             document.getElementById('title').value = anime.title;
             document.getElementById('category').value = anime.genres?.map(g => g.name).join(', ') || '';
-            document.getElementById('score').value = `${anime.score} / 10` || '';
+            document.getElementById('score').value = `${anime.score}/10` || '';
             document.getElementById('imageUrl').value = anime.images.jpg.image_url;
             document.getElementById('episodes').value = anime.episodes;
             
