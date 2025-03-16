@@ -375,7 +375,7 @@ select.filter-button:hover {
             </div>
             <div class="stat-card">
                 <div class="stat-number" id="holdingCount">0</div>
-                <div>En Espera</div>
+                <div>Top Animes</div>
             </div>
         </div>
         
@@ -419,9 +419,9 @@ select.filter-button:hover {
                 <button class="filter-button" onclick="filterByStatus('Abandonados')">
                     Abandonados
                 </button>
-                <button class="filter-button" onclick="filterByStatus('En espera')">
-                    En Espera
-                </button>
+                <button class="filter-button" onclick="filterByStatus('Top Animes')">
+                    Top Animes
+                    </button>
                 <select id="sortOptions" class="filter-button">
                     <option value="default">Orden Predeterminado</option>
                     <option value="az">Ordenar A-Z</option>
@@ -432,6 +432,7 @@ select.filter-button:hover {
             </div>
             <select id="contentTypeSelect" class="filter-button">
                 <option value="anime">Animes</option>
+                <option value="Hentai">H🔥</option>
                 <option value="series">Series</option>
                 <option value="movie">Películas</option>
             </select>
@@ -482,7 +483,7 @@ select.filter-button:hover {
                                         <option value="" disabled selected>Seleccionar Estado</option>
                                     <option value="Viendo">Viendo</option>
                                     <option value="Completados">Completado</option>
-                                    <option value="En espera">En Espera</option>
+                                    <option value="Top Animes">Top Animes</option>
                                     <option value="Abandonados">Abandonados</option>
                                     </select>
                                 </div>
@@ -492,7 +493,6 @@ select.filter-button:hover {
                                         <option value="tv">TV</option>
                                         <option value="movie">Película</option>
                                         <option value="ova">OVA</option>
-                                        <option value="ova">ONA</option>
                                         <option value="special">Especial</option>
                                     </select>
                                 </div>
@@ -617,7 +617,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/6bGxMfY/chainsawman.webp",
 "episode": "12/12",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -699,7 +699,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/fkLT01t/fire-force.webp",
 "episode": "48/48",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
     
 },
 {
@@ -709,7 +709,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/YWPgnNp/frieren.webp",
 "episode": "28/28",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -737,7 +737,7 @@ select.filter-button:hover {
 "score": "8.5/10",
 "image": "https://i.ibb.co/Wsf5r4Q/hell-s-paradise.webp",
 "episode": "13/13",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -765,7 +765,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/kJh5FMY/kaiju.webp",
 "episode": "12/12",
 "fecha": "2025",
-"status": ["Completados", "En espera"]
+"status": ["Completados"]
 },
 {
 "title": "Kaguya Sama",
@@ -791,7 +791,7 @@ select.filter-button:hover {
 "score": "9/10",
 "image": "https://i.ibb.co/3fgJL28/Kimetsu-no-Yaiba.webp",
 "episode": "64/64",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -801,7 +801,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/rwvjj8Y/Jujutsu-Kaisen.webp",
 "episode": "47/47",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -811,7 +811,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/YLG7Fxr/Mushoku-Tensei.webp",
 "episode": "48/48",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -1066,7 +1066,7 @@ select.filter-button:hover {
 "image": "https://i.ibb.co/wN6MMgL/dan-da-dan.png",
 "episode": "12/12",
 "fecha": "2025",
-"status": ["Completados", "En espera"] // Cambiado a un array
+"status": ["Completados"] // Cambiado a un array
 
 },
 {
@@ -1409,6 +1409,8 @@ const mediaItems = [
 
 ];
 
+
+
     
     function init() {
         setupEventListeners();
@@ -1521,7 +1523,7 @@ const mediaItems = [
             completed: animeItems.filter(item => item.status.includes('Completados')).length,
             watching: animeItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: animeItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: animeItems.filter(item => item.status.includes('En espera')).length
+            holding: animeItems.filter(item => item.status.includes('Top Animes')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1529,7 +1531,24 @@ const mediaItems = [
             if (element) element.textContent = value;
         });
     }
-        
+    
+    function updateHentaiStats() {
+        const hentaiItems = mediaItems.filter(item => item.type === 'Hentai');
+    
+        const stats = {
+            total: hentaiItems.length,
+            completed: hentaiItems.filter(item => item.status.includes('Completados')).length,
+            watching: hentaiItems.filter(item => item.status.includes('Viendo')).length,
+            abandoned: hentaiItems.filter(item => item.status.includes('Abandonados')).length,
+            holding: hentaiItems.filter(item => item.status.includes('Top Animes')).length
+        };
+    
+        Object.entries(stats).forEach(([key, value]) => {
+            const element = document.getElementById(`${key}Count`);
+            if (element) element.textContent = value;
+        });
+    }
+    
     function updateSeriesStats() {
         const seriesItems = mediaItems.filter(item => item.type === 'series');
     
@@ -1538,7 +1557,7 @@ const mediaItems = [
             completed: seriesItems.filter(item => item.status.includes('Completados')).length,
             watching: seriesItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: seriesItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: seriesItems.filter(item => item.status.includes('En espera')).length
+            holding: seriesItems.filter(item => item.status.includes('Top Animes')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1555,7 +1574,7 @@ const mediaItems = [
             completed: movieItems.filter(item => item.status.includes('Completados')).length,
             watching: movieItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: movieItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: movieItems.filter(item => item.status.includes('En espera')).length
+            holding: movieItems.filter(item => item.status.includes('Top Animes')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1677,21 +1696,108 @@ const mediaItems = [
         displayContent(currentContent);
     }
     // Modificar la función de filtrado
-    function filterByStatus(status) {
-        const contentType = document.getElementById('contentTypeSelect').value;
-        let filteredContent = mediaItems.filter(item => item.type === contentType);
-        
-        if (status !== 'Todos los Animes') {
-            filteredContent = filteredContent.filter(item => {
-                if (Array.isArray(item.status)) {
-                    return item.status.includes(status);
+    const predefinedFavorites = [
+                {
+                    name: "One Piece",
+                    rank: 1, 
+                    image: "https://4kwallpapers.com/images/wallpapers/one-piece-character-1920x1080-15328.jpeg",
+                    score: "🔥/10",
+                    category: "acción, aventura, comedia, drama, fantasía, Shounen"
+                },
+                {
+                    name: "Cyberpunk: Edgerunners",
+                    rank: 3,
+                    image: "https://images3.alphacoders.com/134/1346679.jpg",
+                    score: "-🎬/10",
+                    category: "Action, Sci-Fi"
+                },
+                {
+                    name: "Solo Leveling",
+                    rank: 3,
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
+                    score: "8.75/10",
+                    category: "acción, aventura, fantasía, sobrenatural, Shounen"
+                },
+                {
+                    name: "Frieren: Beyond Journey's End",
+                    rank: 4,
+                    image: "https://i.ibb.co/YWPgnNp/frieren.webp",
+                    score: "🔥/10",
+                    category: "ficción de aventuras, drama, género fantástico, Shounen"
+                },
+                {
+                    name: "dan-da-dan",
+                    rank: 5,
+                    image: "https://i.ibb.co/wN6MMgL/dan-da-dan.png",
+                    score: "🔥/10",
+                    category: "Acción, sobrenatural, comedia romántica, humor negro"
+                },
+	        	{
+		            name: "Dr Stone",
+                    rank: 6,
+		            image: "https://i.pinimg.com/originals/6c/b9/83/6cb9833b7bc1b2fde9ac7a6152e772fc.jpg",
+	    	        score: "8.5/10",
+	    	        category: "aventura, ciencia, Shounen",
+	              	},			
+                {
+                    name: "Your Lie in April",
+                    rank: 7,
+                    image: "https://i.ibb.co/gRhWk0N/your-lie-in-april.webp",
+                    score: "🎻🎹/10",
+                    category: "drama, música, romance, escolar, Shounen"
+                },
+                {
+                    name: "Hunter x Hunter",
+                    rank: 8,
+                    image: "https://i.ibb.co/k8d5Dd6/hxh.webp",
+                    score: "🔥/10",
+                    category: "Shonen"
+                },
+                {
+                    name: "Mushoku Tensei",
+                    rank: 9,
+                    image: "https://i.ibb.co/YLG7Fxr/Mushoku-Tensei.webp",
+                    score: "10/10",
+                    category: "aventura, drama, fantasía, isekai"
+                },
+                {
+                    name: "Black Clover",
+                    rank: 10,
+                    image: "https://i.ibb.co/YQLvqg3/black-clover.webp",
+                    score: "9.75/10",
+                    category: "Acción, Aventura, Comedia, Fantasía, Drama, Shounen"
                 }
-                return item.status === status;
-            });
-        }
-        
+            ];
+
+function filterByStatus(status) {
+    const contentType = document.getElementById('contentTypeSelect').value;
+    let filteredContent = mediaItems.filter(item => item.type === contentType);
+    
+    if (status === 'Top Animes') {
+        const favoriteCards = predefinedFavorites.map(favorite => {
+            return {
+                rank: favorite.rank,
+                title: favorite.name,
+                category: favorite.category,
+                score: favorite.score,
+                image: favorite.image,
+                type: 'anime',
+                status: 'Top Animes'
+            };
+        });
+        displayContent(favoriteCards);
+    } else if (status !== 'Todos los Animes') {
+        filteredContent = filteredContent.filter(item => {
+            if (Array.isArray(item.status)) {
+                return item.status.includes(status);
+            }
+            return item.status === status;
+        });
+        displayContent(filteredContent);
+    } else {
         displayContent(filteredContent);
     }
+}
     
     
     // Función para cambiar el placeholder del buscador
@@ -1715,7 +1821,13 @@ const mediaItems = [
                 placeholder = 'Buscar película...';
                 updateMovieStats();
     
-                break;    
+                break;
+            case 'Hentai':
+                placeholder = 'Buscar Hentai...';
+                updateHentaiStats();
+    
+                break;
+    
             default:
                 placeholder = 'Buscar...';
         }
@@ -1845,6 +1957,9 @@ const mediaItems = [
                 break;
             case 'movie':
                 updateMovieStats();
+                break;
+            case 'Hentai':
+                updateHentaiStats();
                 break;
         }
 
@@ -1987,9 +2102,9 @@ function displayResults(animes) {
         function fillForm(anime) {
             document.getElementById('title').value = anime.title;
             document.getElementById('category').value = anime.genres?.map(g => g.name).join(', ') || '';
-            document.getElementById('score').value = `${anime.score}/10` || '';
+            document.getElementById('score').value = anime.score || '';
             document.getElementById('imageUrl').value = anime.images.jpg.image_url;
-            document.getElementById('episodes').value = anime.episodes;
+            document.getElementById('episodes').value = anime.episodes ? `${anime.episodes}/${anime.episodes}` : '';
             
             // Mapear el tipo de anime
             const typeMap = {
@@ -2002,10 +2117,6 @@ function displayResults(animes) {
                 document.getElementById('type').value = typeMap[anime.type];
             }
         }
-
-
-
-
 
     
        function handleSubmit(event) {
@@ -2039,6 +2150,21 @@ function displayResults(animes) {
             console.error('Error al copiar el contenido: ', err);
         });
     }
+ 
+
+    function handleSubmit(event) {
+    event.preventDefault(); // Evita el envío del formulario por defecto
+    const score = parseInt(document.getElementById('score').value);
+
+    // Validación de la puntuación
+    if (score < 1 || score > 10) {
+        alert("La puntuación debe estar entre 1 y 10.");
+        return;
+    }
+
+    // Aquí puedes agregar el código para procesar el formulario
+    console.log("Formulario enviado con puntuación:", score);
+}
 
         </script>
 </body>
