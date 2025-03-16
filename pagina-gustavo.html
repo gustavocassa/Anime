@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -373,10 +374,7 @@ select.filter-button:hover {
                 <div class="stat-number" id="abandonedCount">0</div>
                 <div>Abandonados</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="holdingCount">0</div>
-                <div>Top Animes</div>
-            </div>
+
         </div>
         
     </div>
@@ -419,9 +417,9 @@ select.filter-button:hover {
                 <button class="filter-button" onclick="filterByStatus('Abandonados')">
                     Abandonados
                 </button>
-                <button class="filter-button" onclick="filterByStatus('Top Animes')">
-                    Top Animes
-                    </button>
+                <button id="openFavoritesButton" class="filter-button">
+                    <i class="fas fa-star"></i> Favoritos
+                </button>
                 <select id="sortOptions" class="filter-button">
                     <option value="default">Orden Predeterminado</option>
                     <option value="az">Ordenar A-Z</option>
@@ -470,7 +468,7 @@ select.filter-button:hover {
                                     <input type="text" class="form-control" id="category" placeholder="Categoría" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="score" placeholder="Puntuación /10" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="text" class="form-control" id="score" placeholder="Puntuación /10" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;"> 
                                 </div>
                                 <div class="form-group">
                                     <input type="url" class="form-control" id="imageUrl" placeholder="URL imagen" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
@@ -483,7 +481,6 @@ select.filter-button:hover {
                                         <option value="" disabled selected>Seleccionar Estado</option>
                                     <option value="Viendo">Viendo</option>
                                     <option value="Completados">Completado</option>
-                                    <option value="Top Animes">Top Animes</option>
                                     <option value="Abandonados">Abandonados</option>
                                     </select>
                                 </div>
@@ -1409,10 +1406,7 @@ const mediaItems = [
 
 ];
 
-
-
-    
-    function init() {
+     function init() {
         setupEventListeners();
         // Mostrar animes por defecto al cargar la página
         const defaultContent = mediaItems.filter(item => item.type === 'anime');
@@ -1523,7 +1517,7 @@ const mediaItems = [
             completed: animeItems.filter(item => item.status.includes('Completados')).length,
             watching: animeItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: animeItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: animeItems.filter(item => item.status.includes('Top Animes')).length
+            holding: animeItems.filter(item => item.status.includes('En espera')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1540,7 +1534,7 @@ const mediaItems = [
             completed: hentaiItems.filter(item => item.status.includes('Completados')).length,
             watching: hentaiItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: hentaiItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: hentaiItems.filter(item => item.status.includes('Top Animes')).length
+            holding: hentaiItems.filter(item => item.status.includes('En espera')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1557,7 +1551,7 @@ const mediaItems = [
             completed: seriesItems.filter(item => item.status.includes('Completados')).length,
             watching: seriesItems.filter(item => item.status.includes('Viendo')).length,
             abandoned: seriesItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: seriesItems.filter(item => item.status.includes('Top Animes')).length
+            holding: seriesItems.filter(item => item.status.includes('En espera')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1573,8 +1567,7 @@ const mediaItems = [
             total: movieItems.length,
             completed: movieItems.filter(item => item.status.includes('Completados')).length,
             watching: movieItems.filter(item => item.status.includes('Viendo')).length,
-            abandoned: movieItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: movieItems.filter(item => item.status.includes('Top Animes')).length
+            abandoned: movieItems.filter(item => item.status.includes('Abandonados')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -1696,108 +1689,21 @@ const mediaItems = [
         displayContent(currentContent);
     }
     // Modificar la función de filtrado
-    const predefinedFavorites = [
-                {
-                    name: "One Piece",
-                    rank: 1, 
-                    image: "https://4kwallpapers.com/images/wallpapers/one-piece-character-1920x1080-15328.jpeg",
-                    score: "🔥/10",
-                    category: "acción, aventura, comedia, drama, fantasía, Shounen"
-                },
-                {
-                    name: "Cyberpunk: Edgerunners",
-                    rank: 3,
-                    image: "https://images3.alphacoders.com/134/1346679.jpg",
-                    score: "-🎬/10",
-                    category: "Action, Sci-Fi"
-                },
-                {
-                    name: "Solo Leveling",
-                    rank: 3,
-                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
-                    score: "8.75/10",
-                    category: "acción, aventura, fantasía, sobrenatural, Shounen"
-                },
-                {
-                    name: "Frieren: Beyond Journey's End",
-                    rank: 4,
-                    image: "https://i.ibb.co/YWPgnNp/frieren.webp",
-                    score: "🔥/10",
-                    category: "ficción de aventuras, drama, género fantástico, Shounen"
-                },
-                {
-                    name: "dan-da-dan",
-                    rank: 5,
-                    image: "https://i.ibb.co/wN6MMgL/dan-da-dan.png",
-                    score: "🔥/10",
-                    category: "Acción, sobrenatural, comedia romántica, humor negro"
-                },
-	        	{
-		            name: "Dr Stone",
-                    rank: 6,
-		            image: "https://i.pinimg.com/originals/6c/b9/83/6cb9833b7bc1b2fde9ac7a6152e772fc.jpg",
-	    	        score: "8.5/10",
-	    	        category: "aventura, ciencia, Shounen",
-	              	},			
-                {
-                    name: "Your Lie in April",
-                    rank: 7,
-                    image: "https://i.ibb.co/gRhWk0N/your-lie-in-april.webp",
-                    score: "🎻🎹/10",
-                    category: "drama, música, romance, escolar, Shounen"
-                },
-                {
-                    name: "Hunter x Hunter",
-                    rank: 8,
-                    image: "https://i.ibb.co/k8d5Dd6/hxh.webp",
-                    score: "🔥/10",
-                    category: "Shonen"
-                },
-                {
-                    name: "Mushoku Tensei",
-                    rank: 9,
-                    image: "https://i.ibb.co/YLG7Fxr/Mushoku-Tensei.webp",
-                    score: "10/10",
-                    category: "aventura, drama, fantasía, isekai"
-                },
-                {
-                    name: "Black Clover",
-                    rank: 10,
-                    image: "https://i.ibb.co/YQLvqg3/black-clover.webp",
-                    score: "9.75/10",
-                    category: "Acción, Aventura, Comedia, Fantasía, Drama, Shounen"
+    function filterByStatus(status) {
+        const contentType = document.getElementById('contentTypeSelect').value;
+        let filteredContent = mediaItems.filter(item => item.type === contentType);
+        
+        if (status !== 'Todos los Animes') {
+            filteredContent = filteredContent.filter(item => {
+                if (Array.isArray(item.status)) {
+                    return item.status.includes(status);
                 }
-            ];
-
-function filterByStatus(status) {
-    const contentType = document.getElementById('contentTypeSelect').value;
-    let filteredContent = mediaItems.filter(item => item.type === contentType);
-    
-    if (status === 'Top Animes') {
-        const favoriteCards = predefinedFavorites.map(favorite => {
-            return {
-                rank: favorite.rank,
-                title: favorite.name,
-                category: favorite.category,
-                score: favorite.score,
-                image: favorite.image,
-                type: 'anime',
-                status: 'Top Animes'
-            };
-        });
-        displayContent(favoriteCards);
-    } else if (status !== 'Todos los Animes') {
-        filteredContent = filteredContent.filter(item => {
-            if (Array.isArray(item.status)) {
-                return item.status.includes(status);
-            }
-            return item.status === status;
-        });
-        displayContent(filteredContent);
-    } else {
+                return item.status === status;
+            });
+        }
+        
         displayContent(filteredContent);
     }
-}
     
     
     // Función para cambiar el placeholder del buscador
@@ -2102,9 +2008,9 @@ function displayResults(animes) {
         function fillForm(anime) {
             document.getElementById('title').value = anime.title;
             document.getElementById('category').value = anime.genres?.map(g => g.name).join(', ') || '';
-            document.getElementById('score').value = anime.score || '';
+            document.getElementById('score').value = `${anime.score}/10` || '';
             document.getElementById('imageUrl').value = anime.images.jpg.image_url;
-            document.getElementById('episodes').value = anime.episodes ? `${anime.episodes}/${anime.episodes}` : '';
+            document.getElementById('episodes').value = anime.episodes;
             
             // Mapear el tipo de anime
             const typeMap = {
@@ -2117,6 +2023,10 @@ function displayResults(animes) {
                 document.getElementById('type').value = typeMap[anime.type];
             }
         }
+
+
+
+
 
     
        function handleSubmit(event) {
@@ -2150,22 +2060,396 @@ function displayResults(animes) {
             console.error('Error al copiar el contenido: ', err);
         });
     }
- 
 
-    function handleSubmit(event) {
-    event.preventDefault(); // Evita el envío del formulario por defecto
-    const score = parseInt(document.getElementById('score').value);
+        </script>
+        <div id="favoriteAnimeModal" class="modal" style="display: none;">
+    <div class="modal-content" style="background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 80%; max-width: 800px; position: relative; max-height: 80vh; display: flex; flex-direction: column;">
+        <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
+        <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
+        
+        <!-- Lista de favoritos -->
+        <div id="favoritesList" style="margin-bottom: 20px; overflow-y: auto; flex: 1; min-height: 300px; max-height: calc(80vh - 200px);">
+            <!-- Los favoritos se agregarán aquí dinámicamente -->
+        </div>
 
-    // Validación de la puntuación
-    if (score < 1 || score > 10) {
-        alert("La puntuación debe estar entre 1 y 10.");
-        return;
-    }
+        <!-- Formulario para agregar nuevo favorito -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+            <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+            <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
+        </div>
 
-    // Aquí puedes agregar el código para procesar el formulario
-    console.log("Formulario enviado con puntuación:", score);
-}
+    </div>
+</div>
 
+        <!-- Botón para abrir el modal de favoritos -->
+
+
+        <script>
+            // Inicializar array de favoritos
+            let favorites = [
+                {
+                    name: "One Piece",
+                    rank: 1,
+                    image: "https://4kwallpapers.com/images/wallpapers/one-piece-character-1920x1080-15328.jpeg",
+                    score: "🔥/10",
+                    category: "acción, aventura, comedia, drama, fantasía, Shounen"
+                },
+                {
+                    name: "Cyberpunk: Edgerunners",
+                    rank: 3,
+                    image: "https://images3.alphacoders.com/134/1346679.jpg",
+                    score: "-🎬/10",
+                    category: "Action, Sci-Fi"
+                },
+                {
+                    name: "Solo Leveling",
+                    rank: 3,
+                    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
+                    score: "8.75/10",
+                    category: "acción, aventura, fantasía, sobrenatural, Shounen"
+                },
+                {
+                    name: "dan-da-dan",
+                    rank: 4,
+                    image: "https://i.ibb.co/wN6MMgL/dan-da-dan.png",
+                    score: "🔥/10",
+                    category: "Acción, sobrenatural, comedia romántica, humor negro"
+                },
+                {
+                    name: "Frieren: Beyond Journey's End",
+                    rank: 5,
+                    image: "https://i.ibb.co/YWPgnNp/frieren.webp",
+                    score: "🔥/10",
+                    category: "ficción de aventuras, drama, género fantástico, Shounen"
+                },
+                {
+                    name: "Your Lie in April",
+                    rank: 7,
+                    image: "https://i.ibb.co/gRhWk0N/your-lie-in-april.webp",
+                    score: "🎻🎹/10",
+                    category: "drama, música, romance, escolar, Shounen"
+                },
+                {
+                    name: "Hunter x Hunter",
+                    rank: 8,
+                    image: "https://i.ibb.co/k8d5Dd6/hxh.webp",
+                    score: "🔥/10",
+                    category: "Shonen"
+                },
+                {
+                    name: "Mushoku Tensei",
+                    rank: 9,
+                    image: "https://i.ibb.co/YLG7Fxr/Mushoku-Tensei.webp",
+                    score: "10/10",
+                    category: "aventura, drama, fantasía, isekai"
+                },
+                {
+                    name: "Black Clover",
+                    rank: 10,
+                    image: "https://i.ibb.co/YQLvqg3/black-clover.webp",
+                    score: "9.75/10",
+                    category: "Acción, Aventura, Comedia, Fantasía, Drama, Shounen"
+                }
+            ];
+
+            // Función para abrir el modal de favoritos
+            document.getElementById('openFavoritesButton').addEventListener('click', function() {
+                document.getElementById('favoriteAnimeModal').style.display = 'flex';
+                displayFavorites();
+            });
+
+            // Cerrar el modal cuando se hace clic en la X
+            document.querySelector('#favoriteAnimeModal .cerrar').addEventListener('click', function() {
+                document.getElementById('favoriteAnimeModal').style.display = 'none';
+            });
+
+            // Función para agregar un favorito
+            function addFavorite() {
+                const name = document.getElementById('favoriteName').value;
+                const rank = parseInt(document.getElementById('favoriteRank').value);
+
+                if (!name || !rank || rank < 1 || rank > 10) {
+                    alert('Por favor, ingresa un nombre y una posición válida (1-10)');
+                    return;
+                }
+
+                // Buscar el anime en mediaItems
+                const animeData = mediaItems.find(item =>
+                    item.title.toLowerCase() === name.toLowerCase()
+                );
+
+                if (!animeData) {
+                    alert('Este anime no está en tu colección. Por favor, agrega primero el anime a tu colección.');
+                    return;
+                }
+
+                // Desplazar los animes existentes si es necesario
+                for (let i = favorites.length - 1; i >= 0; i--) {
+                    if (favorites[i].rank >= rank) {
+                        favorites[i].rank++;
+                    }
+                }
+
+                // Asegurarse de que no haya más de 10 favoritos
+                if (favorites.length > 9) {
+                    alert('Has alcanzado el límite de 10 animes favoritos. Elimina uno para agregar otro.');
+                    return;
+                }
+
+                favorites.push({
+                    name: animeData.title,
+                    rank,
+                    image: animeData.image,
+                    score: animeData.score,
+                    category: animeData.category
+                });
+                favorites.sort((a, b) => a.rank - b.rank);
+
+                
+
+                // Limpiar campos y actualizar lista
+                document.getElementById('favoriteName').value = '';
+                document.getElementById('favoriteRank').value = '';
+                displayFavorites();
+            }
+
+            // Función para actualizar los rankings después de reordenar
+            function updateRankings() {
+                favorites.forEach((favorite, index) => {
+                    favorite.rank = index + 1;
+                });
+            }
+
+            // Función para exportar favoritos
+            function exportFavorites() {
+                const data = JSON.stringify(favorites, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'mis_animes_favoritos.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            // Función para pegar favoritos desde JSON
+            function pasteFavorites() {
+                const jsonInput = document.getElementById('favoriteJsonInput').value;
+                try {
+                    const pastedFavorites = JSON.parse(jsonInput);
+                    if (Array.isArray(pastedFavorites)) {
+                        favorites = pastedFavorites;
+                        displayFavorites();
+                        document.getElementById('favoriteJsonInput').value = '';
+                        alert('Favoritos importados correctamente');
+                    } else {
+                        alert('El JSON debe ser un array de favoritos');
+                    }
+                } catch (error) {
+                    alert('Error al procesar el JSON. Asegúrate de que el formato sea correcto');
+                }
+            }
+
+            // Función para importar favoritos
+            function importFavorites() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedFavorites = JSON.parse(e.target.result);
+                            favorites = importedFavorites;
+                            displayFavorites();
+                            alert('Favoritos importados correctamente');
+                        } catch (error) {
+                            alert('Error al importar el archivo. Asegúrate de que sea un archivo JSON válido');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
+            // Función para mostrar los favoritos
+            function displayFavorites() {
+                const container = document.getElementById('favoritesList');
+                container.innerHTML = '';
+
+                // Agregar botones de exportar e importar
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginBottom = '15px';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '10px';
+                buttonContainer.style.justifyContent = 'center';
+
+                const exportButton = document.createElement('button');
+                exportButton.textContent = 'Exportar Favoritos';
+                exportButton.onclick = exportFavorites;
+                exportButton.style.padding = '8px 15px';
+                exportButton.style.backgroundColor = '#28a745';
+                exportButton.style.color = 'white';
+                exportButton.style.border = 'none';
+                exportButton.style.borderRadius = '5px';
+                exportButton.style.cursor = 'pointer';
+
+                const importButton = document.createElement('button');
+                importButton.textContent = 'Importar Favoritos';
+                importButton.onclick = importFavorites;
+                importButton.style.padding = '8px 15px';
+                importButton.style.backgroundColor = '#17a2b8';
+                importButton.style.color = 'white';
+                importButton.style.border = 'none';
+                importButton.style.borderRadius = '5px';
+                importButton.style.cursor = 'pointer';
+
+                buttonContainer.appendChild(exportButton);
+                buttonContainer.appendChild(importButton);
+                container.appendChild(buttonContainer);
+
+                if (favorites.length === 0) {
+                    container.innerHTML += '<p style="color: white; text-align: center;">No hay animes favoritos agregados</p>';
+                    return;
+                }
+
+                favorites.forEach((favorite, index) => {
+                    const favoriteElement = document.createElement('div');
+                    favoriteElement.style.cssText = `
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 8px;
+                        margin: 6px 0;
+                        background-color: #0e0f0f;
+                        border-radius: 6px;
+                        color: white;
+                        min-height: 80px;
+                        cursor: move;
+                    `;
+                    favoriteElement.draggable = false;
+                    favoriteElement.dataset.index = false;
+                    
+                    favoriteElement.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                            <span style="font-size: 1.2em; font-weight: bold; min-width: 30px; text-align: center; color: ${favorite.rank === 1 ? '#FFD700' : favorite.rank === 2 ? '#C0C0C0' : favorite.rank === 3 ? '#CD7F32' : 'white'};">#${favorite.rank}</span>
+                            <img src="${favorite.image}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 6px;">
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <span style="font-weight: bold; font-size: 0.95em;">${favorite.name}</span>
+                                <span style="color: #888; font-size: 0.8em;">${favorite.category}</span>
+                                <span style="color: #007bff; font-size: 0.95em;">${favorite.score} ⭐</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFavorite(${index})" style="background: none; border: none; color: red; cursor: pointer; padding: 10px; font-size: 1.2em; opacity: 0; transition: opacity 0.3s;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    container.appendChild(favoriteElement);
+
+                    // Agregar evento hover al favoriteElement
+                    favoriteElement.addEventListener('mouseenter', function() {
+                        this.querySelector('button').style.opacity = '1';
+                    });
+
+                    favoriteElement.addEventListener('mouseleave', function() {
+                        this.querySelector('button').style.opacity = '0';
+                    });
+
+
+
+                  
+                });
+            }
+
+            // Agregar sugerencias al input de favoritos
+            document.getElementById('favoriteName').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const suggestionsList = document.createElement('div');
+                suggestionsList.id = 'favoritesSuggestionsList';
+                suggestionsList.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    background-color: #0e0f0f;
+                    border-radius: 5px;
+                    margin-top: 5px;
+                    z-index: 1000;
+                    left: 0;
+                    top: 100%;
+                `;
+
+                // Eliminar lista anterior si existe
+                const oldList = document.getElementById('favoritesSuggestionsList');
+                if (oldList) oldList.remove();
+
+                if (!searchTerm) return;
+
+                const suggestions = mediaItems.filter(item => 
+                    item.title.toLowerCase().includes(searchTerm)
+                );
+
+                if (suggestions.length > 0) {
+                    suggestions.forEach(anime => {
+                        const div = document.createElement('div');
+                        div.style.cssText = `
+                            padding: 10px;
+                            cursor: pointer;
+                            color: white;
+                            border-bottom: 1px solid #333;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        `;
+                        div.innerHTML = `
+                            <img src="${anime.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 3px;">
+                            <span>${anime.title}</span>
+                        `;
+
+                        div.addEventListener('mouseover', () => {
+                            div.style.backgroundColor = '#1a1a1a';
+                        });
+
+                        div.addEventListener('mouseout', () => {
+                            div.style.backgroundColor = '#0e0f0f';
+                        });
+
+                        div.addEventListener('click', () => {
+                            document.getElementById('favoriteName').value = anime.title;
+                            suggestionsList.remove();
+                        });
+
+                        suggestionsList.appendChild(div);
+                    });
+
+                    // Agregar la lista al contenedor del input
+                    document.getElementById('favoriteName').parentElement.style.position = 'relative';
+                    document.getElementById('favoriteName').parentElement.appendChild(suggestionsList);
+                }
+            });
+
+            // Cerrar sugerencias de favoritos al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                const suggestionsList = document.getElementById('favoritesSuggestionsList');
+                const input = document.getElementById('favoriteName');
+                
+                if (suggestionsList && !input.contains(e.target) && !suggestionsList.contains(e.target)) {
+                    suggestionsList.remove();
+                }
+            });
+
+            // Función para eliminar un favorito
+            function removeFavorite(index) {
+                if (confirm('¿Estás seguro de que deseas eliminar este anime de tus favoritos?')) {
+                    favorites.splice(index, 1);
+                    displayFavorites();
+                }
+            }
         </script>
 </body>
 </html>
