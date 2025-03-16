@@ -1405,7 +1405,6 @@ const mediaItems = [
     }
 
 ];
-
      function init() {
         setupEventListeners();
         // Mostrar animes por defecto al cargar la página
@@ -2079,6 +2078,8 @@ function displayResults(animes) {
             <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
         </div>
 
+
+    
     </div>
 </div>
 
@@ -2099,14 +2100,14 @@ function displayResults(animes) {
                     name: "Solo Leveling",
                     rank: 2,
                     image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
-                    score: "8.75/10",
+                    score: "9.75/10",
                     category: "acción, aventura, fantasía, sobrenatural, Shounen"
                 },
                 {
                     name: "Cyberpunk: Edgerunners",
                     rank: 3,
                     image: "https://images3.alphacoders.com/134/1346679.jpg",
-                    score: "-🎬/10",
+                    score: "🎬/10",
                     category: "Action, Sci-Fi"
                 },
                 {
@@ -2127,7 +2128,7 @@ function displayResults(animes) {
                     name: "Your Lie in April",
                     rank: 7,
                     image: "https://i.ibb.co/gRhWk0N/your-lie-in-april.webp",
-                    score: "🎻🎹/10",
+                    score: "🎻/10",
                     category: "drama, música, romance, escolar, Shounen"
                 },
                 {
@@ -2228,7 +2229,7 @@ function displayResults(animes) {
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = 'mis_animes_favoritos.txt';
+                const currentView = document.querySelector('.filter-button.active')?.textContent || 'mis_animes_favoritos.txt';
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
@@ -2297,20 +2298,10 @@ function displayResults(animes) {
                 exportButton.style.border = 'none';
                 exportButton.style.borderRadius = '5px';
                 exportButton.style.cursor = 'pointer';
-
-                const importButton = document.createElement('button');
-                importButton.textContent = 'Importar Favoritos';
-                importButton.onclick = importFavorites;
-                importButton.style.padding = '8px 15px';
-                importButton.style.backgroundColor = '#17a2b8';
-                importButton.style.color = 'white';
-                importButton.style.border = 'none';
-                importButton.style.borderRadius = '5px';
-                importButton.style.cursor = 'pointer';
+               
 
                 buttonContainer.appendChild(exportButton);
                 container.appendChild(buttonContainer);
-
                 if (favorites.length === 0) {
                     container.innerHTML += '<p style="color: white; text-align: center;">No hay animes favoritos agregados</p>';
                     return;
@@ -2328,21 +2319,25 @@ function displayResults(animes) {
                         border-radius: 6px;
                         color: white;
                         min-height: 80px;
-                        max-width: 725px;
+                        cursor: move;
+                        max-width:730px;
                     `;
-                    favoriteElement.draggable = false;
-                    favoriteElement.dataset.index = false;
+                    favoriteElement.draggable = true;
+                    favoriteElement.dataset.index = index;
                     
                     favoriteElement.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 15px; flex: 1; ">
+                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
                             <span style="font-size: 1.2em; font-weight: bold; min-width: 30px; text-align: center; color: ${favorite.rank === 1 ? '#FFD700' : favorite.rank === 2 ? '#C0C0C0' : favorite.rank === 3 ? '#CD7F32' : 'white'};">#${favorite.rank}</span>
                             <img src="${favorite.image}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 6px;">
-                            <div style="display: flex; flex-direction: column; gap: 3px; ">
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
                                 <span style="font-weight: bold; font-size: 0.95em;">${favorite.name}</span>
                                 <span style="color: #888; font-size: 0.8em;">${favorite.category}</span>
                                 <span style="color: #007bff; font-size: 0.95em;">${favorite.score} ⭐</span>
                             </div>
                         </div>
+                        <button onclick="removeFavorite(${index})" style="background: none; border: none; color: red; cursor: pointer; padding: 10px; font-size: 1.2em; opacity: 0; transition: opacity 0.3s;">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     `;
                     
                     container.appendChild(favoriteElement);
@@ -2356,9 +2351,35 @@ function displayResults(animes) {
                         this.querySelector('button').style.opacity = '0';
                     });
 
+                    // Eventos de arrastrar y soltar
+                    favoriteElement.addEventListener('dragstart', (e) => {
+                        e.target.classList.add('dragging');
+                        e.target.style.opacity = '0.5';
+                    });
 
+                    favoriteElement.addEventListener('dragend', (e) => {
+                        e.target.classList.remove('dragging');
+                        e.target.style.opacity = '1';
+                        updateRankings();
+                        displayFavorites();
+                    });
 
-                  
+                    favoriteElement.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        const draggingElement = document.querySelector('.dragging');
+                        const currentElement = e.currentTarget;
+                        
+                        if (draggingElement !== currentElement) {
+                            const draggingIndex = parseInt(draggingElement.dataset.index);
+                            const currentIndex = parseInt(currentElement.dataset.index);
+                            
+                            if (draggingIndex !== currentIndex) {
+                                const temp = favorites[draggingIndex];
+                                favorites.splice(draggingIndex, 1);
+                                favorites.splice(currentIndex, 0, temp);
+                            }
+                        }
+                    });
                 });
             }
 
