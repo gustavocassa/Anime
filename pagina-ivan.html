@@ -453,13 +453,16 @@ select.filter-button:hover {
                     <div class="form-container">
                         <div class="modal-header">
                         </div>
-                        <div class="search-container" style="width: 50%; margin: 0 auto;">
+                        <div class="search-container" style="width: 50%; margin: 0 auto; position: relative;">
                             <input type="text" 
                                    class="search-input" 
                                    id="searchInput" 
                                    placeholder="Buscar anime..."
-                                   oninput="debounceSearch(event)" 
-                                   style="color:black; width: 100%;">
+                                   oninput="showSuggestions(event)" 
+                                   style="color: white; width: 100%; background-color: #0e0f0f;">
+                            <!-- Lista de sugerencias -->
+                            <div id="suggestionsList" style="display: none; position: absolute; width: 100%; max-height: 200px; overflow-y: auto; background-color: #0e0f0f; border-radius: 5px; margin-top: 5px; z-index: 1000;">
+                            </div>
                         </div>
                         <form id="animeForm" onsubmit="handleSubmit(event)" style="display: grid; gap: 15px; max-width: 1000px; margin: 30px auto 0;">
                             <div style="display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; width: 100%;">
@@ -3017,9 +3020,297 @@ function displayResults(animes) {
     }
 
         </script>
+
+        <div id="favoriteAnimeModal" class="modal" style="display: none;">
+            <div class="modal-content" style="background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 80%; max-width: 800px; position: relative;">
+                <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
+                <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
+                
+                <!-- Lista de favoritos -->
+                <div id="favoritesList" style="margin-bottom: 20px;">
+                    <!-- Los favoritos se agregarán aquí dinámicamente -->
+                </div>
+
+                <!-- Formulario para agregar nuevo favorito -->
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                    <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                    <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón para abrir el modal de favoritos -->
+        <button id="openFavoritesButton" style="position: fixed; bottom: 20px; right: 20px; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+            <i class="fas fa-star"></i>
+        </button>
+
+        <script>
+            // Inicializar array de favoritos
+            let favorites = JSON.parse(localStorage.getItem('animeFavorites')) || [];
+
+            // Función para abrir el modal de favoritos
+            document.getElementById('openFavoritesButton').addEventListener('click', function() {
+                document.getElementById('favoriteAnimeModal').style.display = 'flex';
+                displayFavorites();
+            });
+
+            // Cerrar el modal cuando se hace clic en la X
+            document.querySelector('#favoriteAnimeModal .cerrar').addEventListener('click', function() {
+                document.getElementById('favoriteAnimeModal').style.display = 'none';
+            });
+
+            // Función para agregar un favorito
+            function addFavorite() {
+                const name = document.getElementById('favoriteName').value;
+                const rank = parseInt(document.getElementById('favoriteRank').value);
+
+                if (!name || !rank || rank < 1 || rank > 10) {
+                    alert('Por favor, ingresa un nombre y una posición válida (1-10)');
+                    return;
+                }
+
+                // Buscar el anime en mediaItems
+                const animeData = mediaItems.find(item => 
+                    item.title.toLowerCase() === name.toLowerCase()
+                );
+
+                if (!animeData) {
+                    alert('Este anime no está en tu colección. Por favor, agrega primero el anime a tu colección.');
+                    return;
+                }
+
+                // Verificar si ya existe un anime en esa posición
+                const existingIndex = favorites.findIndex(f => f.rank === rank);
+                if (existingIndex !== -1) {
+                    if (!confirm(`Ya existe un anime en la posición ${rank}. ¿Deseas reemplazarlo?`)) {
+                        return;
+                    }
+                    favorites.splice(existingIndex, 1);
+                }
+
+                favorites.push({ 
+                    name: animeData.title,
+                    rank,
+                    image: animeData.image,
+                    score: animeData.score,
+                    category: animeData.category
+                });
+                favorites.sort((a, b) => a.rank - b.rank);
+                
+                // Guardar en localStorage
+                localStorage.setItem('animeFavorites', JSON.stringify(favorites));
+                
+                // Limpiar campos y actualizar lista
+                document.getElementById('favoriteName').value = '';
+                document.getElementById('favoriteRank').value = '';
+                displayFavorites();
+            }
+
+            // Función para mostrar los favoritos
+            function displayFavorites() {
+                const container = document.getElementById('favoritesList');
+                container.innerHTML = '';
+
+                if (favorites.length === 0) {
+                    container.innerHTML = '<p style="color: white; text-align: center;">No hay animes favoritos agregados</p>';
+                    return;
+                }
+
+                favorites.forEach((favorite, index) => {
+                    const favoriteElement = document.createElement('div');
+                    favoriteElement.style.cssText = `
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px;
+                        margin: 5px 0;
+                        background-color: #0e0f0f;
+                        border-radius: 5px;
+                        color: white;
+                    `;
+                    
+                    favoriteElement.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                            <span style="font-size: 1.2em; font-weight: bold; min-width: 30px;">#${favorite.rank}</span>
+                            <img src="${favorite.image}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 5px;">
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: bold;">${favorite.name}</span>
+                                <span style="color: #888; font-size: 0.9em;">${favorite.category}</span>
+                                <span style="color: #007bff;">${favorite.score} ⭐</span>
+                            </div>
+                        </div>
+                        <button onclick="removeFavorite(${index})" style="background: none; border: none; color: red; cursor: pointer; padding: 10px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                    
+                    container.appendChild(favoriteElement);
+                });
+            }
+
+            // Agregar sugerencias al input de favoritos
+            document.getElementById('favoriteName').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const suggestionsList = document.createElement('div');
+                suggestionsList.id = 'favoritesSuggestionsList';
+                suggestionsList.style.cssText = `
+                    position: absolute;
+                    width: 100%;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    background-color: #0e0f0f;
+                    border-radius: 5px;
+                    margin-top: 5px;
+                    z-index: 1000;
+                    left: 0;
+                    top: 100%;
+                `;
+
+                // Eliminar lista anterior si existe
+                const oldList = document.getElementById('favoritesSuggestionsList');
+                if (oldList) oldList.remove();
+
+                if (!searchTerm) return;
+
+                const suggestions = mediaItems.filter(item => 
+                    item.title.toLowerCase().includes(searchTerm)
+                );
+
+                if (suggestions.length > 0) {
+                    suggestions.forEach(anime => {
+                        const div = document.createElement('div');
+                        div.style.cssText = `
+                            padding: 10px;
+                            cursor: pointer;
+                            color: white;
+                            border-bottom: 1px solid #333;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        `;
+                        div.innerHTML = `
+                            <img src="${anime.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 3px;">
+                            <span>${anime.title}</span>
+                        `;
+
+                        div.addEventListener('mouseover', () => {
+                            div.style.backgroundColor = '#1a1a1a';
+                        });
+
+                        div.addEventListener('mouseout', () => {
+                            div.style.backgroundColor = '#0e0f0f';
+                        });
+
+                        div.addEventListener('click', () => {
+                            document.getElementById('favoriteName').value = anime.title;
+                            suggestionsList.remove();
+                        });
+
+                        suggestionsList.appendChild(div);
+                    });
+
+                    // Agregar la lista al contenedor del input
+                    document.getElementById('favoriteName').parentElement.style.position = 'relative';
+                    document.getElementById('favoriteName').parentElement.appendChild(suggestionsList);
+                }
+            });
+
+            // Cerrar sugerencias de favoritos al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                const suggestionsList = document.getElementById('favoritesSuggestionsList');
+                const input = document.getElementById('favoriteName');
+                
+                if (suggestionsList && !input.contains(e.target) && !suggestionsList.contains(e.target)) {
+                    suggestionsList.remove();
+                }
+            });
+
+            // Función para eliminar un favorito
+            function removeFavorite(index) {
+                if (confirm('¿Estás seguro de que deseas eliminar este anime de tus favoritos?')) {
+                    favorites.splice(index, 1);
+                    localStorage.setItem('animeFavorites', JSON.stringify(favorites));
+                    displayFavorites();
+                }
+            }
+        </script>
+
+        <script>
+            function showSuggestions(event) {
+                const searchTerm = event.target.value.toLowerCase();
+                const suggestionsList = document.getElementById('suggestionsList');
+                
+                if (!searchTerm) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+
+                // Filtrar los animes existentes
+                const suggestions = mediaItems.filter(item => 
+                    item.title.toLowerCase().includes(searchTerm)
+                );
+
+                if (suggestions.length > 0) {
+                    suggestionsList.innerHTML = '';
+                    suggestions.forEach(anime => {
+                        const div = document.createElement('div');
+                        div.style.cssText = `
+                            padding: 10px;
+                            cursor: pointer;
+                            color: white;
+                            border-bottom: 1px solid #333;
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                        `;
+                        div.innerHTML = `
+                            <img src="${anime.image}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 3px;">
+                            <span>${anime.title}</span>
+                        `;
+                        
+                        div.addEventListener('mouseover', () => {
+                            div.style.backgroundColor = '#1a1a1a';
+                        });
+                        
+                        div.addEventListener('mouseout', () => {
+                            div.style.backgroundColor = '#0e0f0f';
+                        });
+                        
+                        div.addEventListener('click', () => {
+                            // Rellenar el formulario con los datos del anime seleccionado
+                            document.getElementById('title').value = anime.title;
+                            document.getElementById('category').value = anime.category;
+                            document.getElementById('score').value = anime.score;
+                            document.getElementById('imageUrl').value = anime.image;
+                            document.getElementById('episodes').value = anime.episode;
+                            document.getElementById('status').value = anime.status;
+                            
+                            // Ocultar la lista de sugerencias
+                            suggestionsList.style.display = 'none';
+                        });
+                        
+                        suggestionsList.appendChild(div);
+                    });
+                    
+                    suggestionsList.style.display = 'block';
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            }
+
+            // Cerrar las sugerencias cuando se hace clic fuera
+            document.addEventListener('click', (e) => {
+                const suggestionsList = document.getElementById('suggestionsList');
+                const searchInput = document.getElementById('searchInput');
+                
+                if (!searchInput.contains(e.target) && !suggestionsList.contains(e.target)) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+        </script>
 </body>
 </html>
-
 
 
 
