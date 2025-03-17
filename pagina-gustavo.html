@@ -330,6 +330,29 @@ select.filter-button:hover {
     background-color: var(--primary-hover);
 }
 
+
+
+
+.scrollToTopBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 30px;
+    display: none; /* Oculto por defecto */
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.scrollToTopBtn:hover {
+    background-color: #0056b3;
+}
+
+
 @media (max-width: 768px) {
     #sidebarSearch {
         margin-left: 12.5px; 
@@ -511,6 +534,9 @@ select.filter-button:hover {
         <span class="cerrar">&times;</span>
         <img class="modal-contenido" id="img-modal">
     </div>
+
+    <button id="scrollToTopBtn" class="scrollToTopBtn">↑</button>
+
 <footer>
     <h1 style="justify-content: center; display: flex; align-items: center; color: white;">&copy; Ivan D. Aquino</h1>
     <h1 style="justify-content: center; display: flex; align-items: center; color: white; margin-bottom: 50px;">&copy; Gustavo Cassanello</h1>
@@ -2467,6 +2493,24 @@ function displayResults(animes) {
                     displayFavorites();
                 }
             }
+
+
+const scrollToTopBtn = document.getElementById("scrollToTopBtn");
+
+window.onscroll = function() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+        scrollToTopBtn.style.display = "block";
+    } else {
+        scrollToTopBtn.style.display = "none";
+    }
+};
+
+scrollToTopBtn.addEventListener("click", function() {
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+});
         </script>
 </body>
 </html>
