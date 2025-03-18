@@ -374,10 +374,7 @@ select.filter-button:hover {
                 <div class="stat-number" id="abandonedCount">0</div>
                 <div>Abandonados</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number" id="holdingCount">0</div>
-                <div>En Espera</div>
-            </div>
+
         </div>
         
     </div>
@@ -420,8 +417,8 @@ select.filter-button:hover {
                 <button class="filter-button" onclick="filterByStatus('Abandonados')">
                     Abandonados
                 </button>
-                <button class="filter-button" onclick="filterByStatus('En espera')">
-                    En Espera
+                <button id="openFavoritesButton" class="filter-button">
+                    <i class="fas fa-star"></i> Favoritos
                 </button>
                 <select id="sortOptions" class="filter-button">
                     <option value="default">Orden Predeterminado</option>
@@ -484,7 +481,6 @@ select.filter-button:hover {
                                         <option value="" disabled selected>Seleccionar Estado</option>
                                     <option value="Viendo">Viendo</option>
                                     <option value="Completados">Completado</option>
-                                    <option value="En espera">En Espera</option>
                                     <option value="Abandonados">Abandonados</option>
                                     </select>
                                 </div>
@@ -2522,8 +2518,7 @@ select.filter-button:hover {
             total: movieItems.length,
             completed: movieItems.filter(item => item.status.includes('Completados')).length,
             watching: movieItems.filter(item => item.status.includes('Viendo')).length,
-            abandoned: movieItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: movieItems.filter(item => item.status.includes('En espera')).length
+            abandoned: movieItems.filter(item => item.status.includes('Abandonados')).length
         };
     
         Object.entries(stats).forEach(([key, value]) => {
@@ -3019,32 +3014,69 @@ function displayResults(animes) {
 
         </script>
         <div id="favoriteAnimeModal" class="modal" style="display: none;">
-            <div class="modal-content" style="background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 80%; max-width: 800px; position: relative;">
-                <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
-                <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
-                
-                <!-- Lista de favoritos -->
-                <div id="favoritesList" style="margin-bottom: 20px;">
-                    <!-- Los favoritos se agregarán aquí dinámicamente -->
-                </div>
-
-                <!-- Formulario para agregar nuevo favorito -->
-                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
-                    <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
-                    <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
-                </div>
-            </div>
+    <div class="modal-content" style="background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 80%; max-width: 800px; position: relative; max-height: 80vh; display: flex; flex-direction: column;">
+        <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
+        <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
+        
+        <!-- Lista de favoritos -->
+        <div id="favoritesList" style="margin-bottom: 20px; overflow-y: auto; flex: 1; min-height: 300px; max-height: calc(80vh - 200px);">
+            <!-- Los favoritos se agregarán aquí dinámicamente -->
         </div>
 
+        <!-- Formulario para agregar nuevo favorito -->
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+            <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+            <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
+        </div>
+
+
+    
+    </div>
+</div>
+
         <!-- Botón para abrir el modal de favoritos -->
-        <button id="openFavoritesButton" style="position: fixed; bottom: 20px; right: 20px; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-            <i class="fas fa-star"></i>
-        </button>
+
 
         <script>
             // Inicializar array de favoritos
-            let favorites = JSON.parse(localStorage.getItem('animeFavorites')) || [];
+            let favorites = [
+  {
+    "name": "One Piece",
+    "rank": 1,
+    "image": "https://4kwallpapers.com/images/wallpapers/one-piece-character-1920x1080-15328.jpeg",
+    "score": "🔥/10",
+    "category": "acción, aventura, comedia, drama, fantasía, Shounen"
+  },
+  {
+    "name": "Hunter x Hunter",
+    "rank": 2,
+    "image": "https://i.ytimg.com/vi/o4gYEoRLung/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLDXVMsRTYJvdXg-RGxFoA_Iw_hkGg",
+    "score": "🔥11/10",
+    "category": "Shonen"
+  },
+  {
+    "name": "Zero no Tsukaima",
+    "rank": 3,
+    "image": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi7gxBNr_qMINUDkHTA2fd1oXv3Rrwg5MuUV_U8TjxH15uJM1GOx7HJ4ph0JRkMcFwnEN9iBI8CtxdGcD4cDI9uifrqQDeCd_WyhgWJokK5DjEd3V3PHV3uEpF7TTlE8pkAgugo60IgN8XY/s1600/zero-no-tsukaima.jpg",
+    "score": "7/10",
+    "category": "Isekai, Romance"
+  },
+  {
+    "name": "No Game No Life",
+    "rank": 4,
+    "image": "https://images7.alphacoders.com/658/658706.jpg",
+    "score": "11🔥/10",
+    "category": "Comedy, Fantasy, Ecchi, sekai"
+  },
+  {
+    "name": "Black Clover",
+    "rank": 5,
+    "image": "https://imgsrv.crunchyroll.com/cdn-cgi/image/fit=contain,format=auto,quality=85,width=1200,height=675/catalog/crunchyroll/0273e80242d80b0218f640e038269c18.jpg",
+    "score": "9.75/10",
+    "category": "Acción, Aventura, Comedia, Fantasía, Drama, Shounen"
+  }
+];
 
             // Función para abrir el modal de favoritos
             document.getElementById('openFavoritesButton').addEventListener('click', function() {
@@ -3099,8 +3131,7 @@ function displayResults(animes) {
                 });
                 favorites.sort((a, b) => a.rank - b.rank);
 
-                // Guardar en localStorage
-                localStorage.setItem('animeFavorites', JSON.stringify(favorites));
+                
 
                 // Limpiar campos y actualizar lista
                 document.getElementById('favoriteName').value = '';
@@ -3108,13 +3139,95 @@ function displayResults(animes) {
                 displayFavorites();
             }
 
+            // Función para actualizar los rankings después de reordenar
+            function updateRankings() {
+                favorites.forEach((favorite, index) => {
+                    favorite.rank = index + 1;
+                });
+            }
+
+            // Función para exportar favoritos
+            function exportFavorites() {
+                const data = JSON.stringify(favorites, null, 2);
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const currentView = document.querySelector('.filter-button.active')?.textContent ||'mis_animes_favoritos.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            // Función para pegar favoritos desde JSON
+            function pasteFavorites() {
+                const jsonInput = document.getElementById('favoriteJsonInput').value;
+                try {
+                    const pastedFavorites = JSON.parse(jsonInput);
+                    if (Array.isArray(pastedFavorites)) {
+                        favorites = pastedFavorites;
+                        displayFavorites();
+                        document.getElementById('favoriteJsonInput').value = '';
+                        alert('Favoritos importados correctamente');
+                    } else {
+                        alert('El JSON debe ser un array de favoritos');
+                    }
+                } catch (error) {
+                    alert('Error al procesar el JSON. Asegúrate de que el formato sea correcto');
+                }
+            }
+
+            // Función para importar favoritos
+            function importFavorites() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            const importedFavorites = JSON.parse(e.target.result);
+                            favorites = importedFavorites;
+                            displayFavorites();
+                            alert('Favoritos importados correctamente');
+                        } catch (error) {
+                            alert('Error al importar el archivo. Asegúrate de que sea un archivo JSON válido');
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
             // Función para mostrar los favoritos
             function displayFavorites() {
                 const container = document.getElementById('favoritesList');
                 container.innerHTML = '';
 
+                // Agregar botones de exportar e importar
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginBottom = '15px';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '10px';
+                buttonContainer.style.justifyContent = 'center';
+
+                const exportButton = document.createElement('button');
+                exportButton.textContent = 'Exportar Favoritos';
+                exportButton.onclick = exportFavorites;
+                exportButton.style.padding = '8px 15px';
+                exportButton.style.backgroundColor = '#28a745';
+                exportButton.style.color = 'white';
+                exportButton.style.border = 'none';
+                exportButton.style.borderRadius = '5px';
+                exportButton.style.cursor = 'pointer';
+               
+
+                buttonContainer.appendChild(exportButton);
+                container.appendChild(buttonContainer);
                 if (favorites.length === 0) {
-                    container.innerHTML = '<p style="color: white; text-align: center;">No hay animes favoritos agregados</p>';
+                    container.innerHTML += '<p style="color: white; text-align: center;">No hay animes favoritos agregados</p>';
                     return;
                 }
 
@@ -3124,29 +3237,72 @@ function displayResults(animes) {
                         display: flex;
                         justify-content: space-between;
                         align-items: center;
-                        padding: 10px;
-                        margin: 5px 0;
+                        padding: 8px;
+                        margin: 6px 0;
                         background-color: #0e0f0f;
-                        border-radius: 5px;
+                        border-radius: 6px;
                         color: white;
+                        min-height: 80px;
+                        cursor: move;
                     `;
+                    favoriteElement.draggable = true;
+                    favoriteElement.dataset.index = index;
                     
                     favoriteElement.innerHTML = `
-                        <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
-                            <span style="font-size: 1.2em; font-weight: bold; min-width: 30px;">#${favorite.rank}</span>
-                            <img src="${favorite.image}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 5px;">
-                            <div style="display: flex; flex-direction: column;">
-                                <span style="font-weight: bold;">${favorite.name}</span>
-                                <span style="color: #888; font-size: 0.9em;">${favorite.category}</span>
-                                <span style="color: #007bff;">${favorite.score} ⭐</span>
+                        <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                            <span style="font-size: 1.2em; font-weight: bold; min-width: 30px; text-align: center; color: ${favorite.rank === 1 ? '#FFD700' : favorite.rank === 2 ? '#C0C0C0' : favorite.rank === 3 ? '#CD7F32' : 'white'};">#${favorite.rank}</span>
+                            <img src="${favorite.image}" style="width: 50px; height: 70px; object-fit: cover; border-radius: 6px;">
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <span style="font-weight: bold; font-size: 0.95em;">${favorite.name}</span>
+                                <span style="color: #888; font-size: 0.8em;">${favorite.category}</span>
+                                <span style="color: #007bff; font-size: 0.95em;">${favorite.score} ⭐</span>
                             </div>
                         </div>
-                        <button onclick="removeFavorite(${index})" style="background: none; border: none; color: red; cursor: pointer; padding: 10px;">
+                        <button onclick="removeFavorite(${index})" style="background: none; border: none; color: red; cursor: pointer; padding: 10px; font-size: 1.2em; opacity: 0; transition: opacity 0.3s;">
                             <i class="fas fa-trash"></i>
                         </button>
                     `;
                     
                     container.appendChild(favoriteElement);
+
+                    // Agregar evento hover al favoriteElement
+                    favoriteElement.addEventListener('mouseenter', function() {
+                        this.querySelector('button').style.opacity = '1';
+                    });
+
+                    favoriteElement.addEventListener('mouseleave', function() {
+                        this.querySelector('button').style.opacity = '0';
+                    });
+
+                    // Eventos de arrastrar y soltar
+                    favoriteElement.addEventListener('dragstart', (e) => {
+                        e.target.classList.add('dragging');
+                        e.target.style.opacity = '0.5';
+                    });
+
+                    favoriteElement.addEventListener('dragend', (e) => {
+                        e.target.classList.remove('dragging');
+                        e.target.style.opacity = '1';
+                        updateRankings();
+                        displayFavorites();
+                    });
+
+                    favoriteElement.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        const draggingElement = document.querySelector('.dragging');
+                        const currentElement = e.currentTarget;
+                        
+                        if (draggingElement !== currentElement) {
+                            const draggingIndex = parseInt(draggingElement.dataset.index);
+                            const currentIndex = parseInt(currentElement.dataset.index);
+                            
+                            if (draggingIndex !== currentIndex) {
+                                const temp = favorites[draggingIndex];
+                                favorites.splice(draggingIndex, 1);
+                                favorites.splice(currentIndex, 0, temp);
+                            }
+                        }
+                    });
                 });
             }
 
@@ -3231,14 +3387,12 @@ function displayResults(animes) {
             function removeFavorite(index) {
                 if (confirm('¿Estás seguro de que deseas eliminar este anime de tus favoritos?')) {
                     favorites.splice(index, 1);
-                    localStorage.setItem('animeFavorites', JSON.stringify(favorites));
                     displayFavorites();
                 }
             }
         </script>
 </body>
 </html>
-
 
 
 
