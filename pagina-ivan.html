@@ -3018,16 +3018,16 @@ function displayResults(animes) {
         <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
         <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
         
-        <!-- Lista de favoritos -->
-        <div id="favoritesList" style="margin-bottom: 20px; overflow-y: auto; flex: 1; min-height: 300px; max-height: calc(80vh - 200px);">
-            <!-- Los favoritos se agregarán aquí dinámicamente -->
-        </div>
-
         <!-- Formulario para agregar nuevo favorito -->
         <div style="display: flex; gap: 10px; margin-bottom: 15px;">
             <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
             <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
             <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
+        </div>
+
+        <!-- Lista de favoritos -->
+        <div id="favoritesList" style="margin-bottom: 20px; overflow-y: auto; flex: 1; min-height: 300px; max-height: calc(80vh - 200px);">
+            <!-- Los favoritos se agregarán aquí dinámicamente -->
         </div>
 
 
@@ -3041,7 +3041,7 @@ function displayResults(animes) {
         <script>
             // Inicializar array de favoritos
             let favorites = [
-  {
+            {
     "name": "One Piece",
     "rank": 1,
     "image": "https://4kwallpapers.com/images/wallpapers/one-piece-character-1920x1080-15328.jpeg",
@@ -3070,8 +3070,22 @@ function displayResults(animes) {
     "category": "Comedy, Fantasy, Ecchi, sekai"
   },
   {
-    "name": "Black Clover",
+    "name": "Tsuki ga Michibiku Isekai Douchuu",
     "rank": 5,
+    "image": "https://i.pinimg.com/736x/89/0c/ba/890cba28292b5790c3129b0b3fd6063e.jpg",
+    "score": "7/10",
+    "category": "Isekai"
+  },
+  {
+    "name": "Solo Leveling",
+    "rank": 6,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcThiudTRm5yfL6k05IPZUOl5aq8SLwIq8xACg&s",
+    "score": "8.75/10",
+    "category": "acción, aventura, fantasía, sobrenatural, Shounen"
+  },
+  {
+    "name": "Black Clover",
+    "rank": 7,
     "image": "https://imgsrv.crunchyroll.com/cdn-cgi/image/fit=contain,format=auto,quality=85,width=1200,height=675/catalog/crunchyroll/0273e80242d80b0218f640e038269c18.jpg",
     "score": "9.75/10",
     "category": "Acción, Aventura, Comedia, Fantasía, Drama, Shounen"
@@ -3160,68 +3174,33 @@ function displayResults(animes) {
                 URL.revokeObjectURL(url);
             }
 
-            // Función para pegar favoritos desde JSON
-            function pasteFavorites() {
-                const jsonInput = document.getElementById('favoriteJsonInput').value;
-                try {
-                    const pastedFavorites = JSON.parse(jsonInput);
-                    if (Array.isArray(pastedFavorites)) {
-                        favorites = pastedFavorites;
-                        displayFavorites();
-                        document.getElementById('favoriteJsonInput').value = '';
-                        alert('Favoritos importados correctamente');
-                    } else {
-                        alert('El JSON debe ser un array de favoritos');
-                    }
-                } catch (error) {
-                    alert('Error al procesar el JSON. Asegúrate de que el formato sea correcto');
-                }
-            }
-
-            // Función para importar favoritos
-            function importFavorites() {
-                const input = document.createElement('input');
-                input.type = 'file';
-                input.accept = '.json';
-                input.onchange = function(e) {
-                    const file = e.target.files[0];
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        try {
-                            const importedFavorites = JSON.parse(e.target.result);
-                            favorites = importedFavorites;
-                            displayFavorites();
-                            alert('Favoritos importados correctamente');
-                        } catch (error) {
-                            alert('Error al importar el archivo. Asegúrate de que sea un archivo JSON válido');
-                        }
-                    };
-                    reader.readAsText(file);
-                };
-                input.click();
-            }
-
             // Función para mostrar los favoritos
             function displayFavorites() {
                 const container = document.getElementById('favoritesList');
                 container.innerHTML = '';
 
-                // Agregar botones de exportar e importar
+                // Agregar botón de exportar
                 const buttonContainer = document.createElement('div');
-                buttonContainer.style.marginBottom = '15px';
-                buttonContainer.style.display = 'flex';
-                buttonContainer.style.gap = '10px';
-                buttonContainer.style.justifyContent = 'center';
+                buttonContainer.style.position = 'absolute';
+                buttonContainer.style.top = '10px';
+                buttonContainer.style.left = '10px';
+                buttonContainer.style.zIndex = '1000';
 
                 const exportButton = document.createElement('button');
-                exportButton.textContent = 'Exportar Favoritos';
+                exportButton.innerHTML = '<i class="fas fa-plus"></i>';
                 exportButton.onclick = exportFavorites;
-                exportButton.style.padding = '8px 15px';
+                exportButton.style.padding = '4px';
+                exportButton.style.width = '24px';
+                exportButton.style.height = '24px';
                 exportButton.style.backgroundColor = '#28a745';
                 exportButton.style.color = 'white';
                 exportButton.style.border = 'none';
-                exportButton.style.borderRadius = '5px';
+                exportButton.style.borderRadius = '50%';
                 exportButton.style.cursor = 'pointer';
+                exportButton.style.display = 'flex';
+                exportButton.style.alignItems = 'center';
+                exportButton.style.justifyContent = 'center';
+                exportButton.style.fontSize = '14px';
                
 
                 buttonContainer.appendChild(exportButton);
@@ -3243,7 +3222,7 @@ function displayResults(animes) {
                         border-radius: 6px;
                         color: white;
                         min-height: 80px;
-                        cursor: move;
+                        cursor: grab;
                     `;
                     favoriteElement.draggable = true;
                     favoriteElement.dataset.index = index;
