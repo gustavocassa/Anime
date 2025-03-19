@@ -93,6 +93,24 @@
             gap: 0.5rem;
         }
 
+        @media (min-width: 768px) {
+            .filter-buttons {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                align-items: center;
+            }
+            
+            #contentTypeSelect {
+                order: 6;
+                margin-left: 0;
+            }
+            
+            #sortOptions {
+                order: 5;
+            }
+        }
+
         .filter-button {
             padding: 0.75rem 1.25rem;
             border: none;
@@ -337,20 +355,45 @@ select.filter-button:hover {
     }
 
     .gallery {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
     }
 
     .anime-card img {
-        height: 150px;
+        height: 120px;
+    }
+
+    .anime-info {
+        padding: 0.5rem;
+    }
+
+    .anime-title {
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .anime-category {
+        font-size: 0.8rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .anime-score {
+        font-size: 0.8rem;
     }
 
     .controls {
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .filter-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         justify-content: center;
+        width: 100%;
     }
 
     .sidebar {
@@ -374,6 +417,42 @@ select.filter-button:hover {
         width: 90%;
     }
 
+    .add-content-form {
+        padding: 15px !important;
+    }
+
+    .form-group {
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        height: 30px !important;
+        font-size: 13px !important;
+        padding: 4px 6px !important;
+    }
+
+    #animeForm {
+        gap: 10px !important;
+        margin-top: 20px !important;
+    }
+
+    #animeForm > div {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .search-container {
+        width: 100% !important;
+    }
+
+    button[type="submit"] {
+        width: 150px !important;
+        margin: 10px auto 0 !important;
+        padding: 8px !important;
+        font-size: 14px !important;
+    }
+
+
     .header {
         flex-wrap: wrap;
         justify-content: space-between;
@@ -385,9 +464,18 @@ select.filter-button:hover {
     }
 
     .filter-button {
-        padding: 0.5rem 1rem;
-        font-size: 14px;
-        width: 100%;
+        padding: 0.25rem 0.4rem;
+        font-size: 11px;
+        width: auto;
+        white-space: nowrap;
+        margin-bottom: 0.25rem;
+    }
+
+    #sortOptions {
+        font-size: 10px;
+        padding: 0.2rem 1.2rem 0.2rem 0.3rem;
+        background-position: right 3px center;
+        background-size: 16px;
     }
 
     .stats-container {
@@ -471,6 +559,12 @@ select.filter-button:hover {
             </div>
 
             <div class="filter-buttons">
+                <select id="contentTypeSelect" class="filter-button">
+                    <option value="anime">Animes</option>
+                    <option value="Hentai">H🔥</option>
+                    <option value="series">Series</option>
+                    <option value="movie">Películas</option>
+                </select>
                 <button class="filter-button" onclick="filterByStatus('Todos los Animes')">
                     Todos
                 </button>
@@ -487,19 +581,12 @@ select.filter-button:hover {
                     <i class="fas fa-star"></i> Favoritos
                 </button>
                 <select id="sortOptions" class="filter-button">
-                    <option value="default">Orden Predeterminado</option>
+                    <option value="default">Orden Pred...</option>
                     <option value="az">Ordenar A-Z</option>
                     <option value="za">Ordenar Z-A</option>
-                    <option value="rating">Ordenar por Calificación</option>
+                    <option value="rating">Ordenar Cali...</option>
                 </select>
-    
             </div>
-            <select id="contentTypeSelect" class="filter-button">
-                <option value="anime">Animes</option>
-                <option value="Hentai">H🔥</option>
-                <option value="series">Series</option>
-                <option value="movie">Películas</option>
-            </select>
 
             <button id="toggleFormButton" class="filter-button" style="margin-left: auto; width: 40px; height: 40px; border-radius: 50%; padding: 0; font-size: 24px; display: flex; align-items: center; justify-content: center;">
                 +
@@ -526,32 +613,32 @@ select.filter-button:hover {
                                    style="color:black; width: 100%;">
                         </div>
                         <form id="animeForm" onsubmit="handleSubmit(event)" style="display: grid; gap: 15px; max-width: 1000px; margin: 30px auto 0;">
-                            <div style="display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 10px; width: 100%;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; width: 100%;">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="title" placeholder="Título" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="text" class="form-control" id="title" placeholder="Título" required style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="category" placeholder="Categoría" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="text" class="form-control" id="category" placeholder="Categoría" required style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="score" placeholder="Puntuación /10" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;"> 
+                                    <input type="text" class="form-control" id="score" placeholder="Puntuación /10" style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;"> 
                                 </div>
                                 <div class="form-group">
-                                    <input type="url" class="form-control" id="imageUrl" placeholder="URL imagen" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="url" class="form-control" id="imageUrl" placeholder="URL imagen" style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                 </div>
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="episodes" placeholder="Episodios" style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <input type="text" class="form-control" id="episodes" placeholder="Episodios" style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="status" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <select class="form-control" id="status" required style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                         <option value="" disabled selected>Seleccionar Estado</option>
-                                    <option value="Viendo">Viendo</option>
-                                    <option value="Completados">Completado</option>
-                                    <option value="Abandonados">Abandonados</option>
+                                        <option value="Viendo">Viendo</option>
+                                        <option value="Completados">Completado</option>
+                                        <option value="Abandonados">Abandonados</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <select class="form-control" id="type" required style="width: 100%; height: 35px; padding: 5px 10px; border-radius: 5px; background-color: #0e0f0f; color: white;">
+                                    <select class="form-control" id="type" required style="width: 100%; height: 32px; padding: 4px 8px; border-radius: 4px; background-color: #0e0f0f; color: white; font-size: 14px; border: 1px solid #2a2a2a;">
                                         <option value="" disabled selected>Tipo</option>
                                         <option value="tv">TV</option>
                                         <option value="movie">Película</option>
@@ -731,7 +818,7 @@ select.filter-button:hover {
     "title": "Dragon Ball Daima",
     "category": "Acción, Aventura, Comedia, Fantasía, Artes Marciales, Shounen",
     "score": "8/10",
-    "image": "https://tierragamer.com/wp-content/uploads/2024/09/dragon-ball-daima-key-art.webp",
+    "image": "https://a.storyblok.com/f/178900/1920x1080/1d357dc506/dragon-ball-daima-goku-super-saiyan-4-closeup-episode-20-eu_latam.jpg/m/1200x0/filters:quality(95)format(webp)",
     "episode": "12/12",
     "status": "Viendo"
     
@@ -3072,19 +3159,19 @@ function displayResults(animes) {
 
         </script>
         <div id="favoriteAnimeModal" class="modal" style="display: none;">
-    <div class="modal-content" style="background-color: rgba(24,26,27); padding: 20px; border-radius: 10px; width: 80%; max-width: 800px; position: relative; max-height: 80vh; display: flex; flex-direction: column;">
-        <span class="cerrar" style="position: absolute; right: 10px; top: 5px; cursor: pointer;">&times;</span>
-        <h2 style="color: white; margin-bottom: 20px; text-align: center;">Top Animes Favoritos</h2>
+    <div class="modal-content" style="background-color: rgba(24,26,27); padding: 15px; border-radius: 10px; width: 95%; max-width: 600px; position: relative; max-height: 90vh; display: flex; flex-direction: column;">
+        <span class="cerrar" style="position: absolute; right: 8px; top: 2px; cursor: pointer;">&times;</span>
+        <h2 style="color: white; margin-bottom: 15px; text-align: center; font-size: 1.2em;">Top Animes Favoritos</h2>
         
         <!-- Formulario para agregar nuevo favorito -->
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
-            <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 120px; padding: 8px; border-radius: 5px; background-color: #0e0f0f; color: white;">
-            <button onclick="addFavorite()" style="padding: 8px 15px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Agregar</button>
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <input type="text" id="favoriteName" placeholder="Nombre del anime" style="flex: 1; padding: 6px; border-radius: 5px; background-color: #0e0f0f; color: white; font-size: 0.9em;">
+            <input type="number" id="favoriteRank" placeholder="Posición (1-10)" min="1" max="10" style="width: 100px; padding: 6px; border-radius: 5px; background-color: #0e0f0f; color: white; font-size: 0.9em;">
+            <button onclick="addFavorite()" style="padding: 6px 12px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;">Agregar</button>
         </div>
 
         <!-- Lista de favoritos -->
-        <div id="favoritesList" style="margin-bottom: 20px; overflow-y: auto; flex: 1; min-height: 300px; max-height: calc(80vh - 200px);">
+        <div id="favoritesList" style="margin-bottom: 15px; overflow-y: auto; flex: 1; min-height: 250px; max-height: calc(90vh - 150px);">
             <!-- Los favoritos se agregarán aquí dinámicamente -->
         </div>
 
