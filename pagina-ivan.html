@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -331,13 +332,78 @@ select.filter-button:hover {
 }
 
 @media (max-width: 768px) {
-    #sidebarSearch {
-        margin-left: 12.5px; 
-        
-        margin-top: 60px; 
-        margin-bottom:-40px;
-        width:325px;
+    .container {
+        padding: 1rem;
     }
+
+    .gallery {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .anime-card img {
+        height: 150px;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .filter-buttons {
+        justify-content: center;
+    }
+
+    .sidebar {
+        width: 100%;
+        left: -100%;
+    }
+
+    .sidebar.show-sidebar {
+        left: 0;
+    }
+
+    body.sidebar-active {
+        margin-left: 0;
+        overflow: hidden;
+    }
+
+    #sidebarSearch {
+        margin-left: 12.5px;
+        margin-top: 60px;
+        margin-bottom: -40px;
+        width: 90%;
+    }
+
+    .header {
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+
+    .search-input {
+        font-size: 16px;
+        padding: 0.5rem;
+    }
+
+    .filter-button {
+        padding: 0.5rem 1rem;
+        font-size: 14px;
+        width: 100%;
+    }
+
+    .stats-container {
+        margin-top: 40px;
+    }
+
+    .stat-card {
+        margin: 5px;
+        padding: 8px;
+    }
+
+    .modal-contenido {
+        width: 95%;
+        height: auto;
+    }
+}
 
 
 
