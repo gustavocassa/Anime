@@ -453,7 +453,6 @@ select.filter-button:hover {
             </div>
             <select id="contentTypeSelect" class="filter-button">
                 <option value="anime">Animes</option>
-                <option value="Hentai">H🔥</option>
                 <option value="series">Series</option>
                 <option value="movie">Películas</option>
             </select>
@@ -1583,23 +1582,8 @@ const mediaItems = [
         });
     }
     
-    function updateHentaiStats() {
-        const hentaiItems = mediaItems.filter(item => item.type === 'Hentai');
-    
-        const stats = {
-            total: hentaiItems.length,
-            completed: hentaiItems.filter(item => item.status.includes('Completados')).length,
-            watching: hentaiItems.filter(item => item.status.includes('Viendo')).length,
-            abandoned: hentaiItems.filter(item => item.status.includes('Abandonados')).length,
-            holding: hentaiItems.filter(item => item.status.includes('En espera')).length
-        };
-    
-        Object.entries(stats).forEach(([key, value]) => {
-            const element = document.getElementById(`${key}Count`);
-            if (element) element.textContent = value;
-        });
-    }
-    
+
+
     function updateSeriesStats() {
         const seriesItems = mediaItems.filter(item => item.type === 'series');
     
@@ -1785,11 +1769,6 @@ const mediaItems = [
                 updateMovieStats();
     
                 break;
-            case 'Hentai':
-                placeholder = 'Buscar Hentai...';
-                updateHentaiStats();
-    
-                break;
     
             default:
                 placeholder = 'Buscar...';
@@ -1920,9 +1899,6 @@ const mediaItems = [
                 break;
             case 'movie':
                 updateMovieStats();
-                break;
-            case 'Hentai':
-                updateHentaiStats();
                 break;
         }
 
