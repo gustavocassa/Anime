@@ -3956,10 +3956,13 @@ function displayResults(animes) {
                     card.addEventListener('drop', handleDrop);
                     card.addEventListener('dragend', handleDragEnd);
                 });
+                document.addEventListener('dragover', handleDragScroll);
             }
             
             // Función para deshabilitar arrastrar y soltar
             function disableDragAndDrop() {
+                stopDragScroll();
+                document.removeEventListener('dragover', handleDragScroll);
                 const cards = document.querySelectorAll('.anime-card');
                 
                 cards.forEach(card => {
@@ -3984,6 +3987,27 @@ function displayResults(animes) {
             
             // Variables para el arrastrar y soltar
             let draggedItem = null;
+            let dragScrollInterval = null;
+            var DRAG_SCROLL_ZONE = 100;
+            var DRAG_SCROLL_SPEED = 12;
+            
+            function handleDragScroll(e) {
+                if (!draggedItem) return;
+                var y = e.clientY;
+                var topZone = DRAG_SCROLL_ZONE;
+                var bottomZone = window.innerHeight - DRAG_SCROLL_ZONE;
+                if (y < topZone) {
+                    if (!dragScrollInterval) dragScrollInterval = setInterval(function() { window.scrollBy(0, -DRAG_SCROLL_SPEED); }, 25);
+                } else if (y > bottomZone) {
+                    if (!dragScrollInterval) dragScrollInterval = setInterval(function() { window.scrollBy(0, DRAG_SCROLL_SPEED); }, 25);
+                } else {
+                    if (dragScrollInterval) { clearInterval(dragScrollInterval); dragScrollInterval = null; }
+                }
+            }
+            
+            function stopDragScroll() {
+                if (dragScrollInterval) { clearInterval(dragScrollInterval); dragScrollInterval = null; }
+            }
             
             // Funciones para manejar eventos de arrastrar y soltar
             function handleDragStart(e) {
@@ -4006,6 +4030,7 @@ function displayResults(animes) {
             
             function handleDrop(e) {
                 e.preventDefault();
+                stopDragScroll();
                 if (this !== draggedItem) {
                     const gallery = document.getElementById('animeGallery');
                     const items = Array.from(gallery.querySelectorAll('.anime-card'));
@@ -4040,6 +4065,8 @@ function displayResults(animes) {
             
             function handleDragEnd() {
                 this.style.opacity = '1';
+                draggedItem = null;
+                stopDragScroll();
                 document.querySelectorAll('.anime-card').forEach(card => {
                     card.style.backgroundColor = '';
                 });
