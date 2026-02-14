@@ -2827,20 +2827,21 @@ select.filter-button:hover {
     function displayContent(items) {
         elements.gallery.innerHTML = '';
         const fragment = document.createDocumentFragment();
-    
+
         if (items.length === 0) {
             const noResultsMessage = document.createElement('div');
             noResultsMessage.className = 'no-results';
             noResultsMessage.textContent = '❌ Sin Resultados';
             elements.gallery.appendChild(noResultsMessage);
         } else {
-            items.forEach(item => {
-                const card = createContentCard(item);
+            items.forEach((item) => {
+                const realIndex = mediaItems.indexOf(item);
+                const card = createContentCard(item, realIndex);
                 fragment.appendChild(card);
             });
             elements.gallery.appendChild(fragment);
         }
-    
+
     }
     
     // Actualizar las estadísticas para contar solo animes
@@ -3100,9 +3101,10 @@ select.filter-button:hover {
     // Función mejorada para mostrar el contenido
     
     // Función para crear tarjetas según el tipo de contenido
-    function createContentCard(item) {
+    function createContentCard(item, index) {
         const card = document.createElement('div');
         card.className = 'anime-card';
+        card.dataset.index = index;
         
         let episodeOrDuration = '';
         if (item.type === 'movie') {
@@ -3123,11 +3125,16 @@ select.filter-button:hover {
         
         // Mantener el evento del modal
         const imgElement = card.querySelector('.anime-image');
-        imgElement.addEventListener('click', function() {
-            const modal = document.getElementById('modal');
-            const imgModal = document.getElementById('img-modal');
-            modal.style.display = 'flex';
-            imgModal.src = this.src;
+        imgElement.addEventListener('click', function(e) {
+            if (editModeActive) {
+                e.stopPropagation();
+                openEditModal(item, index);
+            } else {
+                const modal = document.getElementById('modal');
+                const imgModal = document.getElementById('img-modal');
+                modal.style.display = 'flex';
+                imgModal.src = this.src;
+            }
         });
         
         return card;
@@ -3366,35 +3373,40 @@ function displayResults(animes) {
 
     
        function handleSubmit(event) {
-        event.preventDefault(); // Evita que el formulario se envíe de la manera tradicional
+        event.preventDefault();
 
-        // Obtiene los valores de los campos del formulario
-        const title = document.getElementById('title').value;
-        const category = document.getElementById('category').value;
-        const score = document.getElementById('score').value;
-        const imageUrl = document.getElementById('imageUrl').value;
-        const episodes = document.getElementById('episodes').value;
+        const title = document.getElementById('title').value.trim();
+        const category = document.getElementById('category').value.trim();
+        const score = document.getElementById('score').value.trim();
+        const imageUrl = document.getElementById('imageUrl').value.trim();
+        const episodes = document.getElementById('episodes').value.trim();
         const status = document.getElementById('status').value;
 
-        // Crea un objeto con toda la información en formato JSON
-        const content = {
-            "title": title,
-            "category": category,
-            "score": score,
-            "image": imageUrl,
-            "episode": episodes,
-            "status": status
+        const newAnime = {
+            title: title,
+            category: category,
+            score: score,
+            image: imageUrl || 'https://via.placeholder.com/300x200?text=Sin+imagen',
+            episode: episodes || '0/0',
+            status: status,
+            type: 'anime'
         };
 
-        // Convierte el objeto a una cadena JSON
-        const jsonContent = JSON.stringify(content, null, 4); // Formato legible
+        if (typeof mediaItems !== 'undefined') {
+            mediaItems.push(newAnime);
+            if (typeof localStorage !== 'undefined') {
+                localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
+            }
+            if (typeof displayContent === 'function') {
+                var contentTypeSelect = document.getElementById('contentTypeSelect');
+                if (contentTypeSelect) contentTypeSelect.value = 'anime';
+                var animeList = mediaItems.filter(function(item) { return item.type === 'anime'; });
+                displayContent(animeList);
+            }
+            if (typeof updateStats === 'function') updateStats();
+        }
 
-        // Copia el contenido JSON al portapapeles
-        navigator.clipboard.writeText(jsonContent).then(() => {
-            alert('Contenido copiado al portapapeles!');
-        }).catch(err => {
-            console.error('Error al copiar el contenido: ', err);
-        });
+        event.target.reset();
     }
 
         </script>
@@ -3761,14 +3773,567 @@ function displayResults(animes) {
                     displayFavorites();
                 }
             }
+            
+            // Copiar la lista actual de animes en formato "const animes = [...]" al portapapeles
+            function copyAnimesToClipboard() {
+                const animeItems = mediaItems.filter(item => item.type === 'anime');
+                const animesParaExportar = animeItems.map(item => {
+                    const { type, ...resto } = item;
+                    return resto;
+                });
+                const texto = 'const animes = ' + JSON.stringify(animesParaExportar, null, 4) + ';';
+                navigator.clipboard.writeText(texto).then(() => {
+                    const msg = document.getElementById('copyAnimesToast');
+                    if (msg) {
+                        msg.classList.add('show');
+                        setTimeout(() => msg.classList.remove('show'), 2500);
+                    }
+                }).catch(() => alert('No se pudo copiar. Revisa los permisos del navegador.'));
+            }
+
+            // Contenedor para los dos botones (uno al lado del otro)
+            function createEditButtonsContainer() {
+                const container = document.createElement('div');
+                container.id = 'editButtonsContainer';
+                Object.assign(container.style, {
+                    position: 'fixed',
+                    bottom: '16px',
+                    left: '12px',
+                    zIndex: '1000',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '6px',
+                    alignItems: 'center'
+                });
+                document.body.appendChild(container);
+                return container;
+            }
+
+            // Crear botón para copiar const animes
+            function createCopyAnimesButton(container) {
+                const btn = document.createElement('button');
+                btn.id = 'copyAnimesButton';
+                btn.innerHTML = '<i class="fas fa-copy"></i>';
+                btn.className = 'edit-mode-button copy-animes-btn';
+                btn.title = 'Copia la lista de animes actual en formato JavaScript para pegarla en el HTML';
+                Object.assign(btn.style, {
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    backgroundColor: '#27ae60',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease',
+                    display: 'none'
+                });
+                btn.addEventListener('click', copyAnimesToClipboard);
+                container.appendChild(btn);
+                // Toast "Copiado al portapapeles"
+                const toast = document.createElement('div');
+                toast.id = 'copyAnimesToast';
+                toast.textContent = '✓ Copiado al portapapeles';
+                Object.assign(toast.style, {
+                    position: 'fixed',
+                    bottom: '48px',
+                    left: '12px',
+                    zIndex: '1001',
+                    padding: '6px 12px',
+                    fontSize: '12px',
+                    backgroundColor: '#27ae60',
+                    color: 'white',
+                    borderRadius: '5px',
+                    opacity: '0',
+                    pointerEvents: 'none',
+                    transition: 'opacity 0.3s ease'
+                });
+                document.body.appendChild(toast);
+                const style = document.createElement('style');
+                style.textContent = '#copyAnimesToast.show { opacity: 1; }';
+                document.head.appendChild(style);
+                return btn;
+            }
+
+            // Crear botón de edición
+            function createEditButton(container) {
+                const editButton = document.createElement('button');
+                editButton.id = 'editModeButton';
+                editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                editButton.className = 'edit-mode-button';
+                editButton.title = 'Modo Edición';
+                Object.assign(editButton.style, {
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    backgroundColor: '#2c3e50',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+                    transition: 'all 0.3s ease'
+                });
+                editButton.addEventListener('click', toggleEditMode);
+                container.appendChild(editButton);
+                return editButton;
+            }
+            
+            // Variable para controlar el estado del modo edición
+            let editModeActive = false;
+            
+            // Función para activar/desactivar el modo edición
+            function toggleEditMode() {
+                editModeActive = !editModeActive;
+                const editButton = document.getElementById('editModeButton');
+                const copyButton = document.getElementById('copyAnimesButton');
+                if (editModeActive) {
+                    editButton.style.backgroundColor = '#e74c3c';
+                    editButton.innerHTML = '<i class="fas fa-times"></i>';
+                    if (copyButton) copyButton.style.display = '';
+                    enableDragAndDrop();
+                } else {
+                    syncOrderFromDOMToMediaItems();
+                    localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
+                    editButton.style.backgroundColor = '#2c3e50';
+                    editButton.innerHTML = '<i class="fas fa-edit"></i>';
+                    if (copyButton) copyButton.style.display = 'none';
+                    disableDragAndDrop();
+                    showSavedToast();
+                }
+            }
+            
+            function showSavedToast() {
+                let toast = document.getElementById('savedEditToast');
+                if (!toast) {
+                    toast = document.createElement('div');
+                    toast.id = 'savedEditToast';
+                    toast.innerHTML = 'Cambios guardados. Usa <strong>Copiar const animes</strong> para guardar en el archivo.';
+                    Object.assign(toast.style, {
+                        position: 'fixed',
+                        bottom: '48px',
+                        left: '12px',
+                        zIndex: '1001',
+                        padding: '10px 16px',
+                        backgroundColor: '#2c3e50',
+                        color: 'white',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        maxWidth: '320px',
+                        opacity: '0',
+                        pointerEvents: 'none',
+                        transition: 'opacity 0.3s ease',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                    });
+                    document.body.appendChild(toast);
+                    const style = document.createElement('style');
+                    style.textContent = '#savedEditToast.show { opacity: 1; }';
+                    document.head.appendChild(style);
+                }
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+            }
+            
+            // Función para habilitar arrastrar y soltar
+            function enableDragAndDrop() {
+                const cards = document.querySelectorAll('.anime-card');
+                
+                cards.forEach(card => {
+                    // Hacer las tarjetas arrastrables
+                    card.setAttribute('draggable', 'true');
+                    card.classList.add('editable');
+                    
+                    // Añadir estilos para indicar que están en modo edición
+                    card.style.cursor = 'move';
+                    card.style.boxShadow = '0 0 8px rgba(231, 76, 60, 0.7)';
+                    card.style.transform = 'scale(0.98)';
+                    card.style.transition = 'all 0.3s ease';
+                    
+                    // Agregar eventos de arrastrar y soltar
+                    card.addEventListener('dragstart', handleDragStart);
+                    card.addEventListener('dragover', handleDragOver);
+                    card.addEventListener('dragenter', handleDragEnter);
+                    card.addEventListener('dragleave', handleDragLeave);
+                    card.addEventListener('drop', handleDrop);
+                    card.addEventListener('dragend', handleDragEnd);
+                });
+            }
+            
+            // Función para deshabilitar arrastrar y soltar
+            function disableDragAndDrop() {
+                const cards = document.querySelectorAll('.anime-card');
+                
+                cards.forEach(card => {
+                    // Quitar atributo arrastrable
+                    card.removeAttribute('draggable');
+                    card.classList.remove('editable');
+                    
+                    // Restaurar estilos originales
+                    card.style.cursor = 'default';
+                    card.style.boxShadow = '';
+                    card.style.transform = '';
+                    
+                    // Eliminar eventos de arrastrar y soltar
+                    card.removeEventListener('dragstart', handleDragStart);
+                    card.removeEventListener('dragover', handleDragOver);
+                    card.removeEventListener('dragenter', handleDragEnter);
+                    card.removeEventListener('dragleave', handleDragLeave);
+                    card.removeEventListener('drop', handleDrop);
+                    card.removeEventListener('dragend', handleDragEnd);
+                });
+            }
+            
+            // Variables para el arrastrar y soltar
+            let draggedItem = null;
+            
+            // Funciones para manejar eventos de arrastrar y soltar
+            function handleDragStart(e) {
+                draggedItem = this;
+                setTimeout(() => this.style.opacity = '0.5', 0);
+            }
+            
+            function handleDragOver(e) {
+                e.preventDefault();
+            }
+            
+            function handleDragEnter(e) {
+                e.preventDefault();
+                this.style.backgroundColor = 'rgba(52, 73, 94, 0.7)';
+            }
+            
+            function handleDragLeave() {
+                this.style.backgroundColor = '';
+            }
+            
+            function handleDrop(e) {
+                e.preventDefault();
+                if (this !== draggedItem) {
+                    const gallery = document.getElementById('animeGallery');
+                    const items = Array.from(gallery.querySelectorAll('.anime-card'));
+                    const fromIndex = items.indexOf(draggedItem);
+                    const toIndex = items.indexOf(this);
+                    if (fromIndex < toIndex) {
+                        gallery.insertBefore(draggedItem, this.nextSibling);
+                    } else {
+                        gallery.insertBefore(draggedItem, this);
+                    }
+                    this.style.backgroundColor = '';
+                    syncOrderFromDOMToMediaItems();
+                    localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
+                }
+            }
+            
+            function syncOrderFromDOMToMediaItems() {
+                const contentType = document.getElementById('contentTypeSelect').value;
+                const gallery = document.getElementById('animeGallery');
+                const cards = Array.from(gallery.querySelectorAll('.anime-card'));
+                if (cards.length === 0) return;
+                const newOrderIndices = cards.map(card => parseInt(card.dataset.index, 10));
+                const reorderedItems = newOrderIndices.map(i => mediaItems[i]);
+                const typePositions = [];
+                for (let i = 0; i < mediaItems.length; i++) {
+                    if (mediaItems[i].type === contentType) typePositions.push(i);
+                }
+                reorderedItems.forEach((item, j) => {
+                    mediaItems[typePositions[j]] = item;
+                });
+            }
+            
+            function handleDragEnd() {
+                this.style.opacity = '1';
+                document.querySelectorAll('.anime-card').forEach(card => {
+                    card.style.backgroundColor = '';
+                });
+            }
+            
+            // Estilos para el modo de edición
+             const editStyles = document.createElement('style');
+             editStyles.textContent = `
+                 .edit-mode-button {
+                     transition: all 0.3s ease;
+                 }
+                 
+                 .edit-mode-button:hover {
+                     transform: scale(1.05);
+                     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+                 }
+                 
+                 .anime-card.editable {
+                     position: relative;
+                 }
+                 
+                 .anime-card.editable::before {
+                     content: '⋮⋮';
+                     position: absolute;
+                     top: 10px;
+                     right: 10px;
+                     color: #e74c3c;
+                     font-size: 18px;
+                     z-index: 10;
+                 }
+                 
+                 .anime-card.editable::after {
+                     content: '✏️';
+                     position: absolute;
+                     top: 10px;
+                     left: 10px;
+                     font-size: 16px;
+                     z-index: 10;
+                 }
+                 
+                 .edit-modal {
+                     position: fixed;
+                     top: 0;
+                     left: 0;
+                     width: 100%;
+                     height: 100%;
+                     background-color: rgba(0, 0, 0, 0.8);
+                     display: flex;
+                     justify-content: center;
+                     align-items: center;
+                     z-index: 2000;
+                 }
+                 
+                 .edit-modal-content {
+                     background-color: #1a1a1a;
+                     border-radius: 10px;
+                     padding: 20px;
+                     width: 90%;
+                     max-width: 500px;
+                     max-height: 80vh;
+                     overflow-y: auto;
+                     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                 }
+                 
+                 .edit-modal-header {
+                     display: flex;
+                     justify-content: space-between;
+                     align-items: center;
+                     margin-bottom: 20px;
+                     border-bottom: 1px solid #333;
+                     padding-bottom: 10px;
+                 }
+                 
+                 .edit-modal-header h2 {
+                     color: white;
+                     margin: 0;
+                 }
+                 
+                 .close-edit-modal {
+                     background: none;
+                     border: none;
+                     color: #e74c3c;
+                     font-size: 20px;
+                     cursor: pointer;
+                     padding: 5px;
+                 }
+                 
+                 .edit-form-group {
+                     margin-bottom: 15px;
+                 }
+                 
+                 .edit-form-group label {
+                     display: block;
+                     color: white;
+                     margin-bottom: 5px;
+                     font-weight: bold;
+                 }
+                 
+                 .edit-form-group input,
+                 .edit-form-group select {
+                     width: 100%;
+                     padding: 10px;
+                     border: 1px solid #333;
+                     border-radius: 5px;
+                     background-color: #2a2a2a;
+                     color: white;
+                     font-size: 14px;
+                     box-sizing: border-box;
+                 }
+                 
+                 .edit-form-group input:focus,
+                 .edit-form-group select:focus {
+                     outline: none;
+                     border-color: #3498db;
+                     box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+                 }
+                 
+                 .edit-form-buttons {
+                     display: flex;
+                     gap: 10px;
+                     justify-content: flex-end;
+                     margin-top: 20px;
+                 }
+                 
+                 .cancel-btn {
+                     padding: 10px 20px;
+                     border: none;
+                     border-radius: 5px;
+                     background-color: #6c757d;
+                     color: white;
+                     cursor: pointer;
+                     transition: background-color 0.3s;
+                 }
+                 
+                 .cancel-btn:hover {
+                     background-color: #5a6268;
+                 }
+                 
+                 .save-btn {
+                     padding: 10px 20px;
+                     border: none;
+                     border-radius: 5px;
+                     background-color: #28a745;
+                     color: white;
+                     cursor: pointer;
+                     transition: background-color 0.3s;
+                 }
+                 
+                 .save-btn:hover {
+                     background-color: #218838;
+                 }
+             `;
+            document.head.appendChild(editStyles);
+            
+            // Función para abrir el modal de edición
+             function openEditModal(item, index) {
+                 const modal = document.getElementById('editModal');
+                 
+                 // Llenar el formulario con los datos actuales
+                 document.getElementById('editTitle').value = item.title;
+                 document.getElementById('editCategory').value = item.category;
+                 document.getElementById('editScore').value = item.score;
+                 document.getElementById('editImage').value = item.image;
+                 document.getElementById('editEpisode').value = item.episode || item.duration;
+                 document.getElementById('editStatus').value = item.status;
+                 document.getElementById('editType').value = item.type;
+                 
+                 // Guardar el índice para la actualización
+                 modal.dataset.editingIndex = index;
+                 
+                 modal.style.display = 'flex';
+             }
+             
+             // Función para cerrar el modal de edición
+             function closeEditModal() {
+                 document.getElementById('editModal').style.display = 'none';
+             }
+             
+             // Función para guardar los cambios
+             function saveEditChanges() {
+                 const modal = document.getElementById('editModal');
+                 const index = parseInt(modal.dataset.editingIndex);
+                 
+                 // Obtener los nuevos valores
+                 const updatedItem = {
+                     title: document.getElementById('editTitle').value,
+                     category: document.getElementById('editCategory').value,
+                     score: document.getElementById('editScore').value,
+                     image: document.getElementById('editImage').value,
+                     episode: document.getElementById('editEpisode').value,
+                     status: document.getElementById('editStatus').value,
+                     type: document.getElementById('editType').value
+                 };
+                 
+                 // Si es película, usar duration en lugar de episode
+                 if (updatedItem.type === 'movie') {
+                     updatedItem.duration = updatedItem.episode;
+                     delete updatedItem.episode;
+                 }
+                 
+                 // Actualizar el item en el array
+                 mediaItems[index] = updatedItem;
+                 
+                 // Guardar en localStorage
+                 localStorage.setItem('mediaItems', JSON.stringify(mediaItems));
+                 
+                 // Actualizar la visualización
+                 const contentType = document.getElementById('contentTypeSelect').value;
+                 const filteredContent = mediaItems.filter(item => item.type === contentType);
+                 displayContent(filteredContent);
+                 
+                 // Actualizar estadísticas
+                 updateStats();
+                 
+                 // Cerrar el modal
+                 closeEditModal();
+                 
+                 // Si el modo edición está activo, reactivar drag and drop
+                 if (editModeActive) {
+                     setTimeout(() => enableDragAndDrop(), 100);
+                 }
+             }
+             
+             // Crear el modal de edición
+             function createEditModal() {
+                 const modalHTML = `
+                     <div id="editModal" class="edit-modal" style="display: none;">
+                         <div class="edit-modal-content">
+                             <div class="edit-modal-header">
+                                 <h2>Editar Anime</h2>
+                                 <button class="close-edit-modal" onclick="closeEditModal()">
+                                     <i class="fas fa-times"></i>
+                                 </button>
+                             </div>
+                             <form id="editForm" onsubmit="event.preventDefault(); saveEditChanges();">
+                                 <div class="edit-form-group">
+                                     <label for="editTitle">Título:</label>
+                                     <input type="text" id="editTitle" required>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editCategory">Categoría:</label>
+                                     <input type="text" id="editCategory" required>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editScore">Puntuación:</label>
+                                     <input type="text" id="editScore" required>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editImage">URL de Imagen:</label>
+                                     <input type="text" id="editImage" required>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editEpisode">Episodios/Duración:</label>
+                                     <input type="text" id="editEpisode" required>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editStatus">Estado:</label>
+                                     <select id="editStatus" required>
+                                         <option value="completed">Completado</option>
+                                         <option value="watching">Viendo</option>
+                                         <option value="abandoned">Abandonado</option>
+                                     </select>
+                                 </div>
+                                 <div class="edit-form-group">
+                                     <label for="editType">Tipo:</label>
+                                     <select id="editType" required>
+                                         <option value="anime">Anime</option>
+                                         <option value="movie">Película</option>
+                                         <option value="series">Serie</option>
+                                         <option value="Hentai">Hentai</option>
+                                     </select>
+                                 </div>
+                                 <div class="edit-form-buttons">
+                                     <button type="button" onclick="closeEditModal()" class="cancel-btn">Cancelar</button>
+                                     <button type="submit" class="save-btn">Guardar Cambios</button>
+                                 </div>
+                             </form>
+                         </div>
+                     </div>
+                 `;
+                 
+                 document.body.insertAdjacentHTML('beforeend', modalHTML);
+             }
+             
+            // Crear el botón de edición y el de copiar cuando se cargue la página
+            document.addEventListener('DOMContentLoaded', function() {
+                var btnContainer = createEditButtonsContainer();
+                createEditButton(btnContainer);
+                createCopyAnimesButton(btnContainer);
+                createEditModal();
+            });
         </script>
 </body>
 </html>
-
-
-
-
-
 
 
 
